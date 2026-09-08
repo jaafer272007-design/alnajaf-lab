@@ -29,6 +29,7 @@ changes only grammar and world will fail it.
 | Build | Grammar | Nav treatment | Hero device | Act-sequence shape | Close pattern | Signature move | World | Port |
 |---|---|---|---|---|---|---|---|---|
 | alnajaf | continuous world (worldflight) | requisition panel, no sections, no section nav | worldflight leg 1: rendered macro clip + live particulate + pointer depth | 7 legs, one pace at 0.217vh/s, peak at leg 5 with 2x the weight | the flight lands on a signed report, a rendered seal settles into it, the booking form holds | the requisition writes itself during the descent and becomes the WhatsApp booking, carrying the chosen test | rendered scientific macro, low-key, one fluorescence-green accent | 4700 |
+| alnajaf-2 | chaptered stage (new): numbered chapters, one live object as the through-line | fixed bar: numbered chapter index that underlines the current chapter, two-word language switch, one action; full-screen menu on phones | condensed uppercase claim in three lines that slide apart under the scroll, a live helix beside it, no media | opener + 5 numbered chapters on distinct devices: pin, sideways rail, pin on night, flow, action; 13.0vh, peak chapter 4.4vh | the action is the last chapter: form, every contact, footer that holds | one porcelain-and-steel helix behind every chapter, posed by scroll, opened and lit red at the peak, mirrored for Arabic, leaning to the pointer | porcelain ground, condensed black type, one signal red, one night chapter | 4700 |
 
 ---
 
@@ -49,6 +50,12 @@ as a constraint, so writing them down is the whole point.
   track including the landing viewport.
 - **Fluorescence green on graphite** as the single accent, earned by being the
   colour a PCR instrument reads a result in. Another lab brand needs its own.
+- **Chaptered stage** (numbered chapters, persistent index, one live 3D object
+  as the continuity instead of a film) is taken by `alnajaf-2`.
+- **A live helix that opens under the wheel at the peak** is taken. So is
+  **the ground easing to night for one chapter and back**.
+- **Porcelain with condensed black uppercase and one signal red** is taken.
+- **Opener + 5 numbered chapters at 13.0vh** with the peak at 4.4vh of it.
 
 ---
 

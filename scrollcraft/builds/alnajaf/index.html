@@ -4,279 +4,304 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Al-Najaf Specialized Laboratory</title>
-<meta name="description" content="Molecular, genetic and pathology diagnostics in Najaf, Iraq, since 2007. Follow one drop of blood down to a single letter of DNA, and book a sample.">
-<meta name="theme-color" content="#0b0d10">
+<meta name="description" content="Molecular, genetic and pathology diagnostics in Najaf, Iraq, since 2007. Seven departments, named instruments, consultant-signed reports. Book a sample on WhatsApp.">
+<meta name="theme-color" content="#f3f4f2">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Al-Najaf Specialized Laboratory">
-<meta property="og:description" content="Molecular, genetic and pathology diagnostics in Najaf, Iraq, since 2007.">
-<meta property="og:image" content="assets/p4.webp">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0d10'/%3E%3Cpath d='M22 5.5A11 11 0 1 0 22 26.5 8.6 8.6 0 1 1 22 5.5z' fill='%23d1323c'/%3E%3C/svg%3E">
+<meta property="og:description" content="We read the body letter by letter. Molecular, genetic and pathology diagnostics in Najaf, Iraq, since 2007.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2312161b'/%3E%3Cpath d='M22 5.5A11 11 0 1 0 22 26.5 8.6 8.6 0 1 1 22 5.5z' fill='%23c92b23'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="fonts/fonts.css">
-<link rel="stylesheet" href="scrollcraft.css">
 <link rel="stylesheet" href="site.css">
-<noscript>
-<style>
-  /* Without JavaScript the flight cannot fly. Lay the story out as a plain document instead: the first frame, then the copy in order, then the booking links. */
-  [data-sc-mode="worldflight"] { display: block; }
-  [data-sc-world] { position: relative !important; height: 62vh; min-height: 22rem; overflow: hidden; }
-  [data-sc-world-copy] { padding-top: 1.5rem; }
-  [data-sc-segment] { position: absolute; inset: 0; opacity: 0 !important; visibility: hidden !important; }
-  [data-sc-segment]:first-child { opacity: 1 !important; visibility: visible !important; }
-  [data-sc-segment] video { display: none; }
-  [data-sc-world-copy] { position: static !important; }
-  .plates, .live, .req, [data-sc-spacer] { display: none !important; }
-  [data-sc-world-copy] [data-sc-copy] { position: static !important; opacity: 1 !important; visibility: visible !important; transform: none !important; translate: none !important; max-width: min(46rem, 100%) !important; margin: 0 auto !important; padding: 3rem var(--sc-gutter) !important; display: block !important; text-align: start !important; inset: auto !important; overflow: visible !important; pointer-events: auto !important; }
-  [data-sc-world-copy] .finale { grid-template-columns: 1fr; }
-  .book button[type="submit"] { display: none; }
-  .bar { position: static; background: none; }
-</style>
-</noscript>
 </head>
 <body>
 
-<a class="skip" href="#booking" data-book><span lang="en">Skip to booking</span><span lang="ar" dir="rtl">انتقل إلى الحجز</span></a>
+<a class="skip" href="#visit"><span lang="en">Skip to booking</span><span lang="ar">انتقل إلى الحجز</span></a>
+
+<!-- The world: one live object, full viewport, behind every chapter. -->
+<div class="stage" id="stage" aria-hidden="true" data-sc-verify-state="boot"><canvas id="world"></canvas></div>
 
 <header class="bar" id="bar">
-  <a class="bar__brand" href="#flight" data-top>
-    <svg class="bar__mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
-      <path d="M27 6.5A14 14 0 1 0 27 33.5 11 11 0 1 1 27 6.5z" fill="#d1323c"/>
-      <path d="M19.5 12c3 2 3 5-0 7s-3 5 0 7" fill="none" stroke="#2c4f8e" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M25.5 12c-3 2-3 5 0 7s3 5 0 7" fill="none" stroke="#9c2b34" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M20.5 14.2h4M20.2 19h4.6M20.5 23.8h4" stroke="#e9e6df" stroke-width="1.2" stroke-linecap="round"/>
+  <a class="brand" href="#top" data-to="#top" data-hover>
+    <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+      <path d="M27 6.5A14 14 0 1 0 27 33.5 11 11 0 1 1 27 6.5z" fill="currentColor"/>
+      <path d="M19.5 12c3 2 3 5 0 7s-3 5 0 7M25.5 12c-3 2-3 5 0 7s3 5 0 7" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"/>
     </svg>
-    <span class="bar__name"><span lang="en">Al-Najaf Specialized Laboratory</span><span lang="ar" dir="rtl">مختبر النجف التخصصي</span></span>
+    <span class="brand__name"><span lang="en">Al-Najaf Specialized Laboratory</span><span lang="ar">مختبر النجف التخصصي</span></span>
   </a>
-  <div class="bar__actions">
-    <button class="lang" type="button" id="langToggle" aria-label="Switch language"><span class="lang__en">EN</span><span class="lang__sep" aria-hidden="true">/</span><span class="lang__ar" lang="ar">ع</span></button>
-    <a class="btn btn--primary btn--sm" href="#booking" data-book><span lang="en">Book a sample</span><span lang="ar" dir="rtl">احجز عينة</span></a>
+
+  <nav class="index" aria-label="Chapters">
+    <a href="#lab" data-to="#lab" data-hover><i>01</i><span lang="en">Lab</span><span lang="ar">المختبر</span></a>
+    <a href="#tests" data-to="#tests" data-hover><i>02</i><span lang="en">Tests</span><span lang="ar">الفحوصات</span></a>
+    <a href="#method" data-to="#method" data-hover><i>03</i><span lang="en">Method</span><span lang="ar">الطريقة</span></a>
+    <a href="#people" data-to="#people" data-hover><i>04</i><span lang="en">People</span><span lang="ar">الفريق</span></a>
+    <a href="#visit" data-to="#visit" data-hover><i>05</i><span lang="en">Visit</span><span lang="ar">الزيارة</span></a>
+  </nav>
+
+  <div class="bar__end">
+    <div class="lang" role="group" aria-label="Language" id="lang">
+      <span class="lang__thumb" aria-hidden="true"></span>
+      <button type="button" class="lang__opt" data-lang="en" aria-pressed="true" data-hover>EN</button>
+      <button type="button" class="lang__opt" data-lang="ar" aria-pressed="false" lang="ar" data-hover>عربي</button>
+    </div>
+    <a class="btn btn--ink btn--sm bar__book" href="#visit" data-to="#visit" data-magnet data-hover><span class="btn__l"><span lang="en">Book a sample</span><span lang="ar">احجز عينة</span></span></a>
+    <button class="burger" type="button" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="menu" data-hover><i></i><i></i></button>
   </div>
 </header>
 
-<main data-sc-mode="worldflight" data-sc-seam="0.16" data-sc-lerp="0.12" id="flight">
+<nav class="menu" id="menu" aria-label="Menu" hidden>
+  <a href="#lab" data-to="#lab"><i>01</i><span lang="en">Lab</span><span lang="ar">المختبر</span></a>
+  <a href="#tests" data-to="#tests"><i>02</i><span lang="en">Tests</span><span lang="ar">الفحوصات</span></a>
+  <a href="#method" data-to="#method"><i>03</i><span lang="en">Method</span><span lang="ar">الطريقة</span></a>
+  <a href="#people" data-to="#people"><i>04</i><span lang="en">People</span><span lang="ar">الفريق</span></a>
+  <a href="#visit" data-to="#visit"><i>05</i><span lang="en">Visit</span><span lang="ar">الزيارة</span></a>
+  <p class="menu__foot"><a href="https://wa.me/9647809422636" target="_blank" rel="noopener" dir="ltr">+964 780 942 2636</a></p>
+</nav>
 
-  <div data-sc-world>
-    <div data-sc-segment data-sc-w="1.30" data-sc-waypoint="drop">
-      <picture><source media="(max-width: 860px)" srcset="assets/p0-p.webp"><img class="sc-world__poster" src="assets/p0.webp" alt="" decoding="async" fetchpriority="high"></picture>
-      <video data-sc-src="assets/leg0.mp4" data-sc-src-mobile="assets/leg0-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="1.30" data-sc-waypoint="plasma">
-      <picture><source media="(max-width: 860px)" srcset="assets/p1-p.webp"><img class="sc-world__poster" src="assets/p1.webp" alt="" decoding="async"></picture>
-      <video data-sc-src="assets/leg1.mp4" data-sc-src-mobile="assets/leg1-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="1.30" data-sc-waypoint="crowd">
-      <picture><source media="(max-width: 860px)" srcset="assets/p2-p.webp"><img class="sc-world__poster" src="assets/p2.webp" alt="" decoding="async"></picture>
-      <video data-sc-src="assets/leg2.mp4" data-sc-src-mobile="assets/leg2-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="1.083" data-sc-waypoint="membrane">
-      <picture><source media="(max-width: 860px)" srcset="assets/p3-p.webp"><img class="sc-world__poster" src="assets/p3.webp" alt="" decoding="async"></picture>
-      <video data-sc-src="assets/leg3.mp4" data-sc-src-mobile="assets/leg3-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="2.167" data-sc-waypoint="letter">
-      <picture><source media="(max-width: 860px)" srcset="assets/p4-p.webp"><img class="sc-world__poster" src="assets/p4.webp" alt="" decoding="async"></picture>
-      <video data-sc-src="assets/leg4.mp4" data-sc-src-mobile="assets/leg4-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="1.30" data-sc-waypoint="reading">
-      <picture><source media="(max-width: 860px)" srcset="assets/p5-p.webp"><img class="sc-world__poster" src="assets/p5.webp" alt="" decoding="async"></picture>
-      <video data-sc-src="assets/leg5.mp4" data-sc-src-mobile="assets/leg5-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="1.30" data-sc-waypoint="report">
-      <picture><source media="(max-width: 860px)" srcset="assets/p6-p.webp"><img class="sc-world__poster" src="assets/p6.webp" alt="" decoding="async"></picture>
-      <video data-sc-src="assets/leg6.mp4" data-sc-src-mobile="assets/leg6-m.mp4" muted playsinline></video>
-    </div>
-  </div>
+<div id="smooth-wrapper">
+<div id="smooth-content">
+<main id="main">
 
-  <!-- The live layer: near-focus particulate over the hero, the seal over the report. Fixed, between the film and the copy. -->
-  <div class="live" id="live" aria-hidden="true" data-sc-verify-state="idle"><canvas id="liveCanvas"></canvas></div>
+  <!-- 00 · The opening. Type in front, the helix behind and to the side. -->
+  <section class="hero" id="top" data-sc-act="flow">
+    <p class="eyebrow hero__eyebrow" data-sc-cue><span lang="en">Al-Najaf Specialized Laboratory · Najaf, Iraq · Since 2007</span><span lang="ar">مختبر النجف التخصصي · النجف، العراق · منذ 2007</span></p>
+    <h1 class="display display--hero hero__title" data-sc-cue>
+      <span class="l" lang="en"><span class="line" data-line="1">We read</span><span class="line" data-line="2">the body</span><span class="line" data-line="3">letter by letter.</span></span>
+      <span class="l" lang="ar"><span class="line" data-line="1">نقرأ</span><span class="line" data-line="2">الجسد</span><span class="line" data-line="3">حرفاً حرفاً.</span></span>
+    </h1>
+    <div class="hero__foot">
+      <p class="lede" data-sc-cue><span lang="en">Molecular, genetic and pathology diagnostics, read on the instruments that matter and signed by consultant pathologists.</span><span lang="ar">فحوصات جزيئية وجينية ونسيجية، تُقرأ على أجهزةٍ تصنع الفرق ويوقّعها استشاريو علم الأمراض.</span></p>
+      <p class="cta">
+        <a class="btn btn--ink" href="#visit" data-to="#visit" data-magnet data-hover><span class="btn__l"><span lang="en">Book a sample</span><span lang="ar">احجز عينة</span></span></a>
+        <a class="btn btn--line" href="#tests" data-to="#tests" data-magnet data-hover><span class="btn__l"><span lang="en">See the tests</span><span lang="ar">تصفح الفحوصات</span></span></a>
+      </p>
+    </div>
+    <a class="scrollcue" href="#lab" data-to="#lab" data-hover><span lang="en">Scroll</span><span lang="ar">مرّر</span><i></i></a>
+  </section>
 
-  <div data-sc-world-copy>
-    <div class="plates" id="plates" aria-hidden="true"></div>
-
-    <!-- 1. Recognition -->
-    <div class="sc-copy sc-copy--lead copy copy--hero" data-sc-copy data-sc-window="hero" data-plate="lead">
-      <div class="l" lang="en">
-        <h1 class="sc-display sc-display--xl">Every answer begins as a question.</h1>
-        <p class="sc-lede">Molecular, genetic and pathology diagnostics in Najaf. Since 2007.</p>
-        <p class="cta"><a class="btn btn--primary" href="#booking" data-book>Book a sample</a><a class="btn btn--ghost" href="tel:+9647809422636">Call the lab</a></p>
-      </div>
-      <div class="l" lang="ar" dir="rtl">
-        <h1 class="sc-display sc-display--xl">كل جواب يبدأ بسؤال.</h1>
-        <p class="sc-lede">فحوصات جزيئية وجينية ومرضية في النجف. منذ 2007.</p>
-        <p class="cta"><a class="btn btn--primary" href="#booking" data-book>احجز عينة</a><a class="btn btn--ghost" href="tel:+9647809422636">اتصل بالمختبر</a></p>
+  <!-- 01 · The lab. Pinned; the helix crosses to the other side and the figures count. -->
+  <section class="chapter chapter--lab" id="lab" data-sc-act="pin">
+    <div class="chapter__pin">
+      <header class="chapter__head">
+        <span class="chapter__num">01</span>
+        <h2 class="display display--lg" data-sc-cue data-split><span lang="en">A laboratory built around one question.</span><span lang="ar">مختبرٌ بُني حول سؤالٍ واحد.</span></h2>
+      </header>
+      <div class="chapter__body lab__body">
+        <p class="display display--md lab__q" data-sc-cue><span lang="en">Is this answer right?</span><span lang="ar">هل هذا الجواب صحيح؟</span></p>
+        <p class="prose" data-sc-cue><span lang="en">Every result that leaves this building is checked against that question. Since 2007 the laboratory has worked to ISO and CAP-equivalent guidelines and taken part in national external quality assessment, so a report from Najaf reads the same as one from anywhere in the world.</span><span lang="ar">كل نتيجة تخرج من هذا المبنى تُختبر أمام هذا السؤال. منذ عام 2007 يعمل المختبر وفق إرشادات مكافئة لمعايير ISO وCAP ويشارك في برنامج التقييم الخارجي للجودة، ليكون تقرير النجف مقروءاً كما يُقرأ في أي مكان في العالم.</span></p>
+        <dl class="stats" data-sc-cue>
+          <div class="stat" data-hover><dt><span lang="en">Laboratory tests</span><span lang="ar">فحص مختبري</span></dt><dd><span class="num" data-count="1500">1500</span><span class="unit">+</span></dd></div>
+          <div class="stat" data-hover><dt><span lang="en">Instruments</span><span lang="ar">جهاز</span></dt><dd><span class="num" data-count="80">80</span><span class="unit">+</span></dd></div>
+          <div class="stat" data-hover><dt><span lang="en">Specialists</span><span lang="ar">متخصص</span></dt><dd><span class="num" data-count="20">20</span><span class="unit">+</span></dd></div>
+          <div class="stat" data-hover><dt><span lang="en">Accuracy</span><span lang="ar">دقة</span></dt><dd><span class="num" data-count="99.8" data-dec="1">99.8</span><span class="unit">%</span></dd></div>
+        </dl>
       </div>
     </div>
+  </section>
 
-    <!-- 2. Curiosity -->
-    <div class="sc-copy sc-copy--lead copy copy--top" data-sc-copy data-sc-window="0.150 0.250 0.25 0.22" data-plate="top">
-      <div class="l" lang="en">
-        <p class="sc-display sc-display--md">One drop. Five million red cells.</p>
-        <p class="sc-lede">The question was never the count.</p>
-      </div>
-      <div class="l" lang="ar" dir="rtl">
-        <p class="sc-display sc-display--md">قطرة واحدة. خمسة ملايين كرية حمراء.</p>
-        <p class="sc-lede">لم يكن السؤال يوماً عن العدد.</p>
+  <!-- 02 · The tests. A rail that travels sideways under the wheel on desktop, and under the thumb on a phone. -->
+  <section class="chapter chapter--tests" id="tests" data-sc-act="pan">
+    <div class="chapter__pin tests__pin">
+      <header class="chapter__head tests__head">
+        <span class="chapter__num">02</span>
+        <h2 class="display display--lg" data-sc-cue data-split><span lang="en">Seven departments. One standard.</span><span lang="ar">سبعة أقسام. معيارٌ واحد.</span></h2>
+        <p class="prose tests__intro" data-sc-cue><span lang="en">Every department reads on named instruments and reports through a named consultant. Scroll through them.</span><span lang="ar">كل قسم يقرأ على أجهزة مسمّاة ويصدر تقاريره عبر استشاري بالاسم. مرّر عبر الأقسام.</span></p>
+      </header>
+      <div class="rail" id="rail" data-hover="drag">
+        <ol class="rail__track" id="railTrack">
+          <li class="card" data-dept="chem">
+            <span class="card__num">01</span>
+            <h3 class="card__title"><span lang="en">Clinical chemistry</span><span lang="ar">الكيمياء السريرية</span></h3>
+            <p class="card__inst"><span lang="en">Roche Cobas 8000</span><span lang="ar">Roche Cobas 8000</span></p>
+            <p class="card__ex"><span lang="en">Glucose and HbA1c · Lipids · Liver and kidney panels · Thyroid and hormones</span><span lang="ar">السكر والهيموغلوبين السكري · الدهون · وظائف الكبد والكلى · الغدة الدرقية والهرمونات</span></p>
+            <a class="card__go" href="#visit" data-to="#visit" data-dept="chem"><span lang="en">Book</span><span lang="ar">احجز</span></a>
+          </li>
+          <li class="card" data-dept="hema">
+            <span class="card__num">02</span>
+            <h3 class="card__title"><span lang="en">Hematology and flow cytometry</span><span lang="ar">أمراض الدم والتدفق الخلوي</span></h3>
+            <p class="card__inst"><span lang="en">BD FACSCanto II</span><span lang="ar">BD FACSCanto II</span></p>
+            <p class="card__ex"><span lang="en">Complete blood count · Coagulation · Immunophenotyping of leukemia and lymphoma</span><span lang="ar">صورة الدم الكاملة · التخثر · التنميط المناعي لابيضاض الدم واللمفوما</span></p>
+            <a class="card__go" href="#visit" data-to="#visit" data-dept="hema"><span lang="en">Book</span><span lang="ar">احجز</span></a>
+          </li>
+          <li class="card" data-dept="immu">
+            <span class="card__num">03</span>
+            <h3 class="card__title"><span lang="en">Clinical immunology</span><span lang="ar">المناعة السريرية</span></h3>
+            <p class="card__inst"><span lang="en">Serology and immunoassay</span><span lang="ar">المصليات والمقايسة المناعية</span></p>
+            <p class="card__ex"><span lang="en">Autoimmune panels · Allergy · Infectious serology · Vitamin D</span><span lang="ar">لوحات المناعة الذاتية · الحساسية · المصليات الإنتانية · فيتامين د</span></p>
+            <a class="card__go" href="#visit" data-to="#visit" data-dept="immu"><span lang="en">Book</span><span lang="ar">احجز</span></a>
+          </li>
+          <li class="card" data-dept="pcr">
+            <span class="card__num">04</span>
+            <h3 class="card__title"><span lang="en">Molecular biology and PCR</span><span lang="ar">البيولوجيا الجزيئية وPCR</span></h3>
+            <p class="card__inst"><span lang="en">Applied Biosystems QuantStudio 5</span><span lang="ar">Applied Biosystems QuantStudio 5</span></p>
+            <p class="card__ex"><span lang="en">Real-time PCR · Viral load · Thrombophilia genes · HLA</span><span lang="ar">PCR اللحظي · الحمل الفيروسي · جينات التخثر · HLA</span></p>
+            <a class="card__go" href="#visit" data-to="#visit" data-dept="pcr"><span lang="en">Book</span><span lang="ar">احجز</span></a>
+          </li>
+          <li class="card" data-dept="histo">
+            <span class="card__num">05</span>
+            <h3 class="card__title"><span lang="en">Histopathology and cytology</span><span lang="ar">علم الأنسجة والخلايا</span></h3>
+            <p class="card__inst"><span lang="en">Leica BOND-MAX</span><span lang="ar">Leica BOND-MAX</span></p>
+            <p class="card__ex"><span lang="en">Biopsies · Immunohistochemistry · Pap smear · Fine-needle aspiration</span><span lang="ar">الخزعات · الكيمياء النسيجية المناعية · مسحة عنق الرحم · الرشف بالإبرة الدقيقة</span></p>
+            <a class="card__go" href="#visit" data-to="#visit" data-dept="histo"><span lang="en">Book</span><span lang="ar">احجز</span></a>
+          </li>
+          <li class="card" data-dept="gene">
+            <span class="card__num">06</span>
+            <h3 class="card__title"><span lang="en">Genetics and genomics</span><span lang="ar">الوراثة والجينوم</span></h3>
+            <p class="card__inst"><span lang="en">Illumina NextSeq 550</span><span lang="ar">Illumina NextSeq 550</span></p>
+            <p class="card__ex"><span lang="en">Next-generation sequencing panels · Karyotyping · Carrier screening</span><span lang="ar">لوحات التسلسل من الجيل التالي · النمط النووي · فحص الحامل</span></p>
+            <a class="card__go" href="#visit" data-to="#visit" data-dept="gene"><span lang="en">Book</span><span lang="ar">احجز</span></a>
+          </li>
+          <li class="card card--home" data-dept="home">
+            <span class="card__num">07</span>
+            <h3 class="card__title"><span lang="en">Home collection</span><span lang="ar">جمع العينات من المنزل</span></h3>
+            <p class="card__inst"><span lang="en">Anywhere in Najaf</span><span lang="ar">في أي مكان في النجف</span></p>
+            <p class="card__ex"><span lang="en">A phlebotomist comes to you. Book the visit on WhatsApp and the report reaches you the same way.</span><span lang="ar">يأتيك أخصائي سحب الدم. احجز الزيارة عبر واتساب ويصلك التقرير بالطريقة نفسها.</span></p>
+            <a class="card__go" href="#visit" data-to="#visit" data-dept="home"><span lang="en">Book</span><span lang="ar">احجز</span></a>
+          </li>
+        </ol>
       </div>
     </div>
+  </section>
 
-    <!-- 3. Unease -->
-    <div class="sc-copy sc-copy--trail copy" data-sc-copy data-sc-window="0.280 0.385 0.25 0.22" data-plate="trail">
-      <div class="l" lang="en">
-        <p class="sc-display sc-display--md">Which one is telling the truth?</p>
-        <p class="sc-lede">A result that is almost right is a decision made in the dark.</p>
-      </div>
-      <div class="l" lang="ar" dir="rtl">
-        <p class="sc-display sc-display--md">أيّها يقول الحقيقة؟</p>
-        <p class="sc-lede">النتيجة شبه الصحيحة قرارٌ يُتّخذ في الظلام.</p>
-      </div>
+  <!-- 03 · The method. The ground goes dark, the helix opens, one letter lights. The peak, with the most scroll. -->
+  <section class="chapter chapter--method" id="method" data-sc-act="pin">
+    <div class="chapter__pin method__pin">
+      <header class="chapter__head method__head">
+        <span class="chapter__num">03</span>
+        <h2 class="display display--lg" data-sc-cue data-split><span lang="en">From a drop to a signed answer.</span><span lang="ar">من قطرةٍ إلى جوابٍ موقَّع.</span></h2>
+      </header>
+      <ol class="steps" id="steps">
+        <li class="step is-on" data-step="0" data-hover>
+          <span class="step__i">1</span>
+          <h3 class="step__t"><span lang="en">Collect</span><span lang="ar">الجمع</span></h3>
+          <p class="step__d"><span lang="en">At the laboratory, or at home in Najaf.</span><span lang="ar">في المختبر، أو في المنزل في النجف.</span></p>
+        </li>
+        <li class="step" data-step="1" data-hover>
+          <span class="step__i">2</span>
+          <h3 class="step__t"><span lang="en">Extract</span><span lang="ar">الاستخلاص</span></h3>
+          <p class="step__d"><span lang="en">DNA and RNA are isolated from the sample.</span><span lang="ar">يُعزل الحمض النووي من العينة.</span></p>
+        </li>
+        <li class="step" data-step="2" data-hover>
+          <span class="step__i">3</span>
+          <h3 class="step__t"><span lang="en">Amplify</span><span lang="ar">التضخيم</span></h3>
+          <p class="step__d"><span lang="en">Real-time PCR turns one copy into a signal that can be measured.</span><span lang="ar">يحوّل PCR اللحظي نسخةً واحدة إلى إشارة يمكن قياسها.</span></p>
+        </li>
+        <li class="step" data-step="3" data-hover>
+          <span class="step__i">4</span>
+          <h3 class="step__t"><span lang="en">Sequence</span><span lang="ar">القراءة</span></h3>
+          <p class="step__d"><span lang="en">The strand is read letter by letter. Disease can be one letter out of place.</span><span lang="ar">يُقرأ الشريط حرفاً حرفاً. قد يكون المرض حرفاً واحداً في غير مكانه.</span></p>
+        </li>
+        <li class="step" data-step="4" data-hover>
+          <span class="step__i">5</span>
+          <h3 class="step__t"><span lang="en">Sign</span><span lang="ar">التوقيع</span></h3>
+          <p class="step__d"><span lang="en">A consultant pathologist reviews the result and signs it.</span><span lang="ar">يراجع استشاري علم الأمراض النتيجة ويوقّعها.</span></p>
+        </li>
+      </ol>
+      <p class="method__peak" id="peak" aria-hidden="true"><span lang="en">One letter.</span><span lang="ar">حرفٌ واحد.</span></p>
     </div>
+  </section>
 
-    <!-- 4. Held breath: no copy. Authored silence. -->
-
-    <!-- 5. Awe. The peak. -->
-    <div class="sc-copy sc-copy--center copy copy--peak" data-sc-copy data-sc-window="0.655 0.742 0.3 0.14" data-plate="band">
-      <div class="l" lang="en">
-        <p class="sc-display sc-display--lg">Down here, disease is one letter out of place.</p>
-        <p class="sc-lede">We read every one.</p>
-      </div>
-      <div class="l" lang="ar" dir="rtl">
-        <p class="sc-display sc-display--lg">هنا في الأعماق، المرض حرفٌ واحد في غير مكانه.</p>
-        <p class="sc-lede">ونحن نقرأ كل حرف.</p>
-      </div>
-    </div>
-
-    <!-- 6. Confidence -->
-    <div class="sc-copy sc-copy--lead copy copy--top copy--reading" data-sc-copy data-sc-window="0.745 0.845 0.2 0.16" data-plate="top">
-      <div class="l" lang="en">
-        <p class="sc-display sc-display--md">Read on the instruments that matter.</p>
-        <ul class="instruments">
-          <li>Illumina NextSeq 550</li>
-          <li>Applied Biosystems QuantStudio 5</li>
-          <li>BD FACSCanto II</li>
-          <li>Roche Cobas 8000</li>
-          <li>Leica BOND-MAX</li>
+  <!-- 04 · The people and the instruments. Flowing, on paper again. -->
+  <section class="chapter chapter--people" id="people" data-sc-act="flow">
+    <header class="chapter__head">
+      <span class="chapter__num">04</span>
+      <h2 class="display display--lg" data-sc-cue data-split><span lang="en">Read on the instruments that matter. Signed by the people who run them.</span><span lang="ar">تُقرأ على الأجهزة التي تصنع الفرق. ويوقّعها من يديرونها.</span></h2>
+    </header>
+    <div class="people__grid">
+      <div class="people__col">
+        <p class="label"><span lang="en">Instruments</span><span lang="ar">الأجهزة</span></p>
+        <ul class="inst" data-reveal>
+          <li class="inst__row" data-hover><span class="inst__name">Illumina NextSeq 550</span><span class="inst__role"><span lang="en">Sequencing</span><span lang="ar">التسلسل الجيني</span></span></li>
+          <li class="inst__row" data-hover><span class="inst__name">Applied Biosystems QuantStudio 5</span><span class="inst__role"><span lang="en">Real-time PCR</span><span lang="ar">PCR اللحظي</span></span></li>
+          <li class="inst__row" data-hover><span class="inst__name">BD FACSCanto II</span><span class="inst__role"><span lang="en">Flow cytometry</span><span lang="ar">التدفق الخلوي</span></span></li>
+          <li class="inst__row" data-hover><span class="inst__name">Roche Cobas 8000</span><span class="inst__role"><span lang="en">Chemistry and immunoassay</span><span lang="ar">الكيمياء والمقايسة المناعية</span></span></li>
+          <li class="inst__row" data-hover><span class="inst__name">Leica BOND-MAX</span><span class="inst__role"><span lang="en">Immunohistochemistry</span><span lang="ar">الكيمياء النسيجية المناعية</span></span></li>
         </ul>
-        <p class="sc-lede">Reviewed and signed by consultant pathologists.</p>
+        <p class="prose people__note" data-sc-cue><span lang="en">Eighty instruments in all. These five are the ones a referring clinician asks about by name.</span><span lang="ar">ثمانون جهازاً في المجمل. هذه الخمسة هي التي يسأل عنها الطبيب المحيل بالاسم.</span></p>
       </div>
-      <div class="l" lang="ar" dir="rtl">
-        <p class="sc-display sc-display--md">تُقرأ على الأجهزة التي تصنع الفرق.</p>
-        <ul class="instruments" dir="ltr">
-          <li>Illumina NextSeq 550</li>
-          <li>Applied Biosystems QuantStudio 5</li>
-          <li>BD FACSCanto II</li>
-          <li>Roche Cobas 8000</li>
-          <li>Leica BOND-MAX</li>
+      <div class="people__col">
+        <p class="label"><span lang="en">Consultants</span><span lang="ar">الاستشاريون</span></p>
+        <ul class="team" data-reveal>
+          <li class="person" data-hover><span class="person__mono">SF</span><span class="person__name"><span lang="en">Dr. Sabah Al-Fatlawi</span><span lang="ar">د. صباح الفتلاوي</span></span><span class="person__role"><span lang="en">Chief Executive, Consultant Pathologist · MD, PhD Clinical Pathology</span><span lang="ar">المدير التنفيذي، استشاري علم الأمراض · MD, PhD</span></span></li>
+          <li class="person" data-hover><span class="person__mono">ZD</span><span class="person__name"><span lang="en">Dr. Zainab Nasser Doush</span><span lang="ar">د. زينب ناصر دوش</span></span><span class="person__role"><span lang="en">Director of Molecular Diagnostics · MSc, PhD Molecular Biology</span><span lang="ar">مديرة التشخيص الجزيئي · MSc, PhD</span></span></li>
+          <li class="person" data-hover><span class="person__mono">AT</span><span class="person__name"><span lang="en">Dr. Alaa Taj Al-Din</span><span lang="ar">د. علاء تاج الدين</span></span><span class="person__role"><span lang="en">Head of Genetics · PhD Medical Genetics</span><span lang="ar">رئيس قسم الوراثة · PhD</span></span></li>
+          <li class="person" data-hover><span class="person__mono">HA</span><span class="person__name"><span lang="en">Dr. Haider Abd</span><span lang="ar">د. حيدر عبد</span></span><span class="person__role"><span lang="en">Senior Hematology Consultant · MD, Board Certified</span><span lang="ar">استشاري أول في أمراض الدم · MD</span></span></li>
+          <li class="person" data-hover><span class="person__mono">AA</span><span class="person__name"><span lang="en">Dr. Ali Adel</span><span lang="ar">د. علي عادل</span></span><span class="person__role"><span lang="en">Biochemistry Specialist · PhD Clinical Biochemistry</span><span lang="ar">اختصاصي الكيمياء السريرية · PhD</span></span></li>
+          <li class="person" data-hover><span class="person__mono">AJ</span><span class="person__name"><span lang="en">Dr. Ali Jabbar</span><span lang="ar">د. علي جبار</span></span><span class="person__role"><span lang="en">Chief Technologist and Cytologist · MSc Applied Cytopathology</span><span lang="ar">كبير التقنيين واختصاصي الخلايا · MSc</span></span></li>
         </ul>
-        <p class="sc-lede">تُراجَع وتُوقَّع من استشاريي علم الأمراض.</p>
       </div>
     </div>
+  </section>
 
-    <!-- 7. Calm. The close holds. -->
-    <div class="sc-copy sc-copy--lead copy copy--finale" data-sc-copy data-sc-window="finale" data-plate="finale" id="finale">
-      <div class="finale">
-        <div class="finale__lead">
-          <div class="l" lang="en">
-            <h2 class="sc-display sc-display--lg">Certainty, signed.</h2>
-            <p class="sc-lede">Al-Najaf Specialized Laboratory. ISO accredited. Working to ISO and CAP equivalent guidelines since 2007.</p>
-          </div>
-          <div class="l" lang="ar" dir="rtl">
-            <h2 class="sc-display sc-display--lg">يقينٌ موقَّع.</h2>
-            <p class="sc-lede">مختبر النجف التخصصي. معتمد دولياً (ISO). نعمل وفق إرشادات مكافئة لمعايير ISO و CAP منذ 2007.</p>
-          </div>
-          <address class="contact">
-            <a class="contact__row" href="https://wa.me/9647809422636" target="_blank" rel="noopener"><span class="contact__k"><span lang="en">WhatsApp</span><span lang="ar" dir="rtl">واتساب</span></span><span class="contact__v sc-nums" dir="ltr">+964 780 942 2636</span></a>
-            <a class="contact__row" href="tel:+9647809422636"><span class="contact__k"><span lang="en">Call</span><span lang="ar" dir="rtl">اتصال</span></span><span class="contact__v sc-nums" dir="ltr">+964 780 942 2636</span></a>
-            <a class="contact__row" href="https://www.google.com/maps/search/?api=1&query=32.001451709640406,44.34974247725304" target="_blank" rel="noopener"><span class="contact__k"><span lang="en">Directions</span><span lang="ar" dir="rtl">الاتجاهات</span></span><span class="contact__v"><span lang="en">Al-Iskan Street, near Al-Ameer Private Hospital, Najaf</span><span lang="ar" dir="rtl">شارع الإسكان، قرب مستشفى الأمير الأهلي، النجف</span></span></a>
-          </address>
-          <div class="team">
-            <p class="sc-label"><span lang="en">Reviewed by</span><span lang="ar" dir="rtl">بإشراف</span></p>
-            <ul class="team__list">
-              <li><span lang="en">Dr. Sabah Al-Fatlawi, Consultant Pathologist</span><span lang="ar" dir="rtl">د. صباح الفتلاوي، استشاري علم الأمراض</span></li>
-              <li><span lang="en">Dr. Zainab Nasser Doush, Molecular Diagnostics</span><span lang="ar" dir="rtl">د. زينب ناصر دوش، التشخيص الجزيئي</span></li>
-              <li><span lang="en">Dr. Alaa Taj Al-Din, Genetics</span><span lang="ar" dir="rtl">د. علاء تاج الدين، الوراثة</span></li>
-              <li><span lang="en">Dr. Haider Abd, Hematology</span><span lang="ar" dir="rtl">د. حيدر عبد، أمراض الدم</span></li>
-              <li><span lang="en">Dr. Ali Adel, Clinical Biochemistry</span><span lang="ar" dir="rtl">د. علي عادل، الكيمياء السريرية</span></li>
-              <li><span lang="en">Dr. Ali Jabbar, Cytology</span><span lang="ar" dir="rtl">د. علي جبار، علم الخلايا</span></li>
-            </ul>
-          </div>
+  <!-- 05 · The visit. The one action, and every real way to reach the lab. -->
+  <section class="chapter chapter--visit" id="visit" data-sc-act="flow">
+    <header class="chapter__head">
+      <span class="chapter__num">05</span>
+      <h2 class="display display--xl" data-sc-cue data-split><span lang="en">Book a sample.</span><span lang="ar">احجز عينة.</span></h2>
+      <p class="prose visit__intro" data-sc-cue><span lang="en">Send your request on WhatsApp and the laboratory replies there. Or call, or come in.</span><span lang="ar">أرسل طلبك عبر واتساب ويردّ عليك المختبر هناك. أو اتصل، أو تفضّل بزيارتنا.</span></p>
+    </header>
+    <div class="visit__grid">
+      <address class="contact">
+        <a class="contact__row" href="https://wa.me/9647809422636" target="_blank" rel="noopener" data-hover><span class="contact__k"><span lang="en">WhatsApp</span><span lang="ar">واتساب</span></span><span class="contact__v num" dir="ltr">+964 780 942 2636</span><i class="contact__arrow"></i></a>
+        <a class="contact__row" href="tel:+9647809422636" data-hover><span class="contact__k"><span lang="en">Call</span><span lang="ar">اتصال</span></span><span class="contact__v num" dir="ltr">+964 780 942 2636</span><i class="contact__arrow"></i></a>
+        <a class="contact__row" href="https://www.google.com/maps/search/?api=1&query=32.001451709640406,44.34974247725304" target="_blank" rel="noopener" data-hover><span class="contact__k"><span lang="en">Directions</span><span lang="ar">الاتجاهات</span></span><span class="contact__v"><span lang="en">Al-Iskan Street, near Al-Ameer Private Hospital, Najaf</span><span lang="ar">شارع الإسكان، قرب مستشفى الأمير الأهلي، النجف</span></span><i class="contact__arrow"></i></a>
+        <p class="contact__row contact__row--static"><span class="contact__k"><span lang="en">At home</span><span lang="ar">في المنزل</span></span><span class="contact__v"><span lang="en">Home sample collection across Najaf. Ask for it in your message.</span><span lang="ar">جمع العينات من المنزل في عموم النجف. اطلبه في رسالتك.</span></span></p>
+      </address>
+
+      <form class="book" id="booking" method="post" novalidate>
+        <div class="field">
+          <label for="f-name"><span lang="en">Name</span><span lang="ar">الاسم</span></label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required minlength="2">
+          <p class="field__err" id="e-name" hidden><span lang="en">Please enter your name.</span><span lang="ar">يرجى إدخال اسمك.</span></p>
         </div>
-
-        <form class="book" id="booking" method="post" novalidate>
-          <p class="book__title sc-label"><span lang="en">Book a sample</span><span lang="ar" dir="rtl">احجز عينة</span></p>
-          <p class="book__hint"><span lang="en">Your request opens in WhatsApp, ready to send. The lab replies there.</span><span lang="ar" dir="rtl">يُفتح طلبك في واتساب جاهزاً للإرسال، ويرد عليك المختبر هناك.</span></p>
-          <div class="field">
-            <label for="f-name"><span lang="en">Name</span><span lang="ar" dir="rtl">الاسم</span></label>
-            <input id="f-name" name="name" type="text" autocomplete="name" required minlength="2">
-            <p class="field__err" id="e-name" hidden><span lang="en">Please enter your name.</span><span lang="ar" dir="rtl">يرجى إدخال اسمك.</span></p>
-          </div>
-          <div class="field">
-            <label for="f-phone"><span lang="en">Phone</span><span lang="ar" dir="rtl">رقم الهاتف</span></label>
-            <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required dir="ltr">
-            <p class="field__err" id="e-phone" hidden><span lang="en">Please enter a phone number we can reach.</span><span lang="ar" dir="rtl">يرجى إدخال رقم هاتف يمكننا التواصل عليه.</span></p>
-          </div>
-          <div class="field">
-            <label for="f-dept"><span lang="en">Test</span><span lang="ar" dir="rtl">الفحص</span></label>
-            <select id="f-dept" name="dept">
-              <option value="" data-en="Not sure yet" data-ar="غير محدد بعد">Not sure yet</option>
-              <option value="chem" data-en="Clinical chemistry" data-ar="الكيمياء السريرية">Clinical chemistry</option>
-              <option value="hema" data-en="Hematology and flow cytometry" data-ar="أمراض الدم وتدفق الخلايا">Hematology and flow cytometry</option>
-              <option value="immu" data-en="Clinical immunology" data-ar="المناعة السريرية">Clinical immunology</option>
-              <option value="pcr" data-en="Molecular biology and PCR" data-ar="البيولوجيا الجزيئية و PCR">Molecular biology and PCR</option>
-              <option value="histo" data-en="Histopathology and cytology" data-ar="علم أمراض الأنسجة والخلايا">Histopathology and cytology</option>
-              <option value="gene" data-en="Genetics and genomic testing" data-ar="الوراثة والفحوصات الجينومية">Genetics and genomic testing</option>
-              <option value="home" data-en="Home sample collection" data-ar="جمع العينات من المنزل">Home sample collection</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="f-msg"><span lang="en">Anything we should know</span><span lang="ar" dir="rtl">ما يجب أن نعرفه</span></label>
-            <textarea id="f-msg" name="msg" rows="2"></textarea>
-          </div>
-          <div class="book__actions">
-            <button class="btn btn--primary" type="submit"><span lang="en">Send via WhatsApp</span><span lang="ar" dir="rtl">أرسل عبر واتساب</span></button>
-            <a class="btn btn--ghost" href="tel:+9647809422636"><span lang="en">Call instead</span><span lang="ar" dir="rtl">أو اتصل</span></a>
-          </div>
-          <noscript><p class="book__hint"><span lang="en">This form needs JavaScript. Use the WhatsApp or call links above.</span><span lang="ar" dir="rtl">يحتاج هذا النموذج إلى JavaScript. استخدم روابط واتساب أو الاتصال أعلاه.</span></p></noscript>
-        </form>
-      </div>
+        <div class="field">
+          <label for="f-phone"><span lang="en">Phone</span><span lang="ar">رقم الهاتف</span></label>
+          <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required dir="ltr">
+          <p class="field__err" id="e-phone" hidden><span lang="en">Please enter a phone number we can reach.</span><span lang="ar">يرجى إدخال رقم هاتف يمكننا التواصل عليه.</span></p>
+        </div>
+        <div class="field">
+          <label for="f-dept"><span lang="en">Test</span><span lang="ar">الفحص</span></label>
+          <select id="f-dept" name="dept">
+            <option value="" data-en="Not sure yet" data-ar="غير محدد بعد">Not sure yet</option>
+            <option value="chem" data-en="Clinical chemistry" data-ar="الكيمياء السريرية">Clinical chemistry</option>
+            <option value="hema" data-en="Hematology and flow cytometry" data-ar="أمراض الدم والتدفق الخلوي">Hematology and flow cytometry</option>
+            <option value="immu" data-en="Clinical immunology" data-ar="المناعة السريرية">Clinical immunology</option>
+            <option value="pcr" data-en="Molecular biology and PCR" data-ar="البيولوجيا الجزيئية وPCR">Molecular biology and PCR</option>
+            <option value="histo" data-en="Histopathology and cytology" data-ar="علم الأنسجة والخلايا">Histopathology and cytology</option>
+            <option value="gene" data-en="Genetics and genomics" data-ar="الوراثة والجينوم">Genetics and genomics</option>
+            <option value="home" data-en="Home sample collection" data-ar="جمع العينات من المنزل">Home sample collection</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-msg"><span lang="en">Anything we should know</span><span lang="ar">ما يجب أن نعرفه</span></label>
+          <textarea id="f-msg" name="msg" rows="2"></textarea>
+        </div>
+        <div class="book__actions">
+          <button class="btn btn--accent" type="submit" data-magnet data-hover><span class="btn__l"><span lang="en">Send via WhatsApp</span><span lang="ar">أرسل عبر واتساب</span></span></button>
+          <a class="btn btn--line" href="tel:+9647809422636" data-magnet data-hover><span class="btn__l"><span lang="en">Call instead</span><span lang="ar">أو اتصل</span></span></a>
+        </div>
+        <p class="book__hint"><span lang="en">Nothing is stored on this page. Your message opens in WhatsApp, ready to send.</span><span lang="ar">لا يُحفظ شيء في هذه الصفحة. تُفتح رسالتك في واتساب جاهزةً للإرسال.</span></p>
+        <noscript><p class="book__hint"><span lang="en">This form needs JavaScript. Use the WhatsApp or call links beside it.</span><span lang="ar">يحتاج هذا النموذج إلى JavaScript. استخدم روابط واتساب أو الاتصال بجانبه.</span></p></noscript>
+      </form>
     </div>
-  </div>
 
-  <div data-sc-spacer aria-hidden="true"></div>
+    <footer class="foot" data-sc-verify-hold="true">
+      <p class="foot__iso"><span lang="en">ISO accredited. Working to ISO and CAP-equivalent guidelines since 2007.</span><span lang="ar">معتمد دولياً (ISO). نعمل وفق إرشادات مكافئة لمعايير ISO وCAP منذ 2007.</span></p>
+      <p class="foot__addr"><span lang="en">Al-Iskan Street, near Al-Ameer Private Hospital, Najaf, Iraq</span><span lang="ar">شارع الإسكان، قرب مستشفى الأمير الأهلي، النجف، العراق</span></p>
+      <p class="foot__copy"><span lang="en">© 2026 Al-Najaf Specialized Laboratory</span><span lang="ar">© 2026 مختبر النجف التخصصي</span></p>
+      <a class="foot__top" href="#top" data-to="#top" data-hover><span lang="en">Back to the top</span><span lang="ar">العودة إلى الأعلى</span></a>
+    </footer>
+  </section>
+
 </main>
+</div>
+</div>
 
-<!-- The requisition that writes itself. Fixed, always operable. -->
-<aside class="req" id="req" aria-label="Requisition">
-  <button class="req__toggle" type="button" id="reqToggle" aria-expanded="false" aria-controls="reqBody">
-    <span class="req__title sc-label"><span lang="en">Requisition</span><span lang="ar" dir="rtl">طلب الفحص</span></span>
-    <span class="req__now" id="reqNow" aria-live="polite"></span>
-  </button>
-  <div class="req__body" id="reqBody">
-    <ol class="req__lines" id="reqLines">
-      <li data-line="0"><span class="req__k"><span lang="en">Sample</span><span lang="ar" dir="rtl">العينة</span></span><span class="req__v"><span lang="en">received</span><span lang="ar" dir="rtl">مستلمة</span></span></li>
-      <li data-line="1"><span class="req__k"><span lang="en">Cells</span><span lang="ar" dir="rtl">الخلايا</span></span><span class="req__v"><span lang="en">examined</span><span lang="ar" dir="rtl">مفحوصة</span></span></li>
-      <li data-line="2"><span class="req__k"><span lang="en">One cell</span><span lang="ar" dir="rtl">خلية واحدة</span></span><span class="req__v"><span lang="en">isolated</span><span lang="ar" dir="rtl">معزولة</span></span></li>
-      <li data-line="3"><span class="req__k"><span lang="en">Nucleus</span><span lang="ar" dir="rtl">النواة</span></span><span class="req__v"><span lang="en">reached</span><span lang="ar" dir="rtl">تم الوصول</span></span></li>
-      <li data-line="4"><span class="req__k"><span lang="en">Sequence</span><span lang="ar" dir="rtl">التسلسل</span></span><span class="req__v"><span lang="en">read</span><span lang="ar" dir="rtl">مقروء</span></span></li>
-      <li data-line="5"><span class="req__k"><span lang="en">Reviewed</span><span lang="ar" dir="rtl">المراجعة</span></span><span class="req__v"><span lang="en">Dr. Sabah Al-Fatlawi</span><span lang="ar" dir="rtl">د. صباح الفتلاوي</span></span></li>
-      <li data-line="6"><span class="req__k"><span lang="en">Result</span><span lang="ar" dir="rtl">النتيجة</span></span><span class="req__v"><span lang="en">ready</span><span lang="ar" dir="rtl">جاهزة</span></span></li>
-    </ol>
-    <fieldset class="req__pick" id="reqPick" hidden>
-      <legend class="sc-label"><span lang="en">Test requested</span><span lang="ar" dir="rtl">الفحص المطلوب</span></legend>
-      <div class="chips">
-        <label class="chip"><input type="radio" name="pick" value="chem"><span><span lang="en">Chemistry</span><span lang="ar" dir="rtl">الكيمياء</span></span></label>
-        <label class="chip"><input type="radio" name="pick" value="hema"><span><span lang="en">Hematology</span><span lang="ar" dir="rtl">أمراض الدم</span></span></label>
-        <label class="chip"><input type="radio" name="pick" value="immu"><span><span lang="en">Immunology</span><span lang="ar" dir="rtl">المناعة</span></span></label>
-        <label class="chip"><input type="radio" name="pick" value="pcr"><span><span lang="en">PCR</span><span lang="ar" dir="rtl">PCR</span></span></label>
-        <label class="chip"><input type="radio" name="pick" value="histo"><span><span lang="en">Histopathology</span><span lang="ar" dir="rtl">الأنسجة</span></span></label>
-        <label class="chip"><input type="radio" name="pick" value="gene"><span><span lang="en">Genetics</span><span lang="ar" dir="rtl">الوراثة</span></span></label>
-        <label class="chip"><input type="radio" name="pick" value="home"><span><span lang="en">Home collection</span><span lang="ar" dir="rtl">من المنزل</span></span></label>
-      </div>
-    </fieldset>
-  </div>
-</aside>
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"></span><span class="cursor__label"></span></div>
 
-<div class="sc-grain" aria-hidden="true"></div>
-
-<script src="scrollcraft.js"></script>
-<script>window.__sc = ScrollCraft.mount(document.body);</script>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/ScrollSmoother.min.js"></script>
+<script src="vendor/SplitText.min.js"></script>
 <script type="module" src="app.js"></script>
 </body>
 </html>

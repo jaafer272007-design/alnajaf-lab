@@ -1,155 +1,384 @@
-// Page-local behaviour for the Al-Najaf flight. The engine (scrollcraft.js) is untouched.
-// Everything here reads the two numbers the engine publishes, --sc-seg and --sc-segp,
-// and the inline opacity it writes on copy blocks.
+// Al-Najaf Specialized Laboratory: page behaviour.
+//
+// Four things live here, in order: language; the scroll score (GSAP ScrollTrigger and
+// ScrollSmoother, one timeline per chapter); pointer interactions (magnet, tilt, cursor);
+// and the world, one live three.js object behind the whole page, driven by the same
+// chapter progress the score reads. Nothing on the page is a video.
 
-const root = document.documentElement;
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const fine = matchMedia('(hover: hover) and (pointer: fine)');
-const small = matchMedia('(max-width: 860px)');
-const clamp01 = (x) => Math.min(1, Math.max(0, x));
-const ramp = (t, a, b) => clamp01((t - a) / (b - a));
-const smooth = (x) => { x = clamp01(x); return x * x * (3 - 2 * x); };
+const html = document.documentElement;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// A verification browser wants the frame a position resolves to, not the eased path there.
+const AUTOMATED = !!navigator.webdriver;
+const INSTANT = REDUCED || AUTOMATED;
+const FINE = matchMedia('(pointer: fine)');
+const PHONE = matchMedia('(max-width: 860px)');
 const lerp = (a, b, t) => a + (b - a) * t;
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
+const ramp = (v, a, b) => clamp01((v - a) / (b - a));
+const smooth = (t) => t * t * (3 - 2 * t);
+const dirSign = () => (html.dir === 'rtl' ? -1 : 1);
 
-// ------------------------------------------------------------------ language --
-const T = {
-  title: { en: 'Al-Najaf Specialized Laboratory', ar: 'مختبر النجف التخصصي' },
-  wa: {
-    en: (d) => `Hello Al-Najaf Specialized Laboratory. I would like to book a sample.\nName: ${d.name}\nPhone: ${d.phone}\nTest: ${d.dept}${d.msg ? `\nNote: ${d.msg}` : ''}`,
-    ar: (d) => `مرحباً مختبر النجف التخصصي. أود حجز عينة.\nالاسم: ${d.name}\nالهاتف: ${d.phone}\nالفحص: ${d.dept}${d.msg ? `\nملاحظة: ${d.msg}` : ''}`,
-  },
-};
-const langBtn = document.getElementById('langToggle');
-const dept = document.getElementById('f-dept');
-function syncSelectLabels() {
-  for (const o of dept.options) o.textContent = o.dataset[root.lang] || o.textContent;
+gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText);
+gsap.defaults({ ease: 'power3.out' });
+
+// =============================================================================
+// Language. One document carries both texts; only the active one is in the tree.
+// =============================================================================
+const LANG_KEY = 'najaf-lang';
+const langBox = $('#lang');
+const thumb = $('.lang__thumb');
+function placeThumb() {
+  const on = $('.lang__opt[aria-pressed="true"]');
+  if (!on) return;
+  const r = on.getBoundingClientRect(), b = langBox.getBoundingClientRect();
+  thumb.style.setProperty('--w', r.width + 'px');
+  thumb.style.setProperty('--x', (r.left - b.left - 3) + 'px');
 }
-function setLang(l, persist = true) {
-  root.lang = l; root.dir = l === 'ar' ? 'rtl' : 'ltr';
-  document.title = T.title[l];
-  langBtn.setAttribute('aria-label', l === 'ar' ? 'Switch to English' : 'التبديل إلى العربية');
-  syncSelectLabels(); updateReqNow();
-  if (persist) { try { localStorage.setItem('alnajaf-lang', l); } catch (e) { /* private mode */ } }
-  relayout();
+function setLang(l, first = false) {
+  html.lang = l;
+  html.dir = l === 'ar' ? 'rtl' : 'ltr';
+  $$('.lang__opt').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === l)));
+  document.title = l === 'ar' ? 'مختبر النجف التخصصي' : 'Al-Najaf Specialized Laboratory';
+  $$('#f-dept option').forEach((o) => { o.textContent = o.dataset[l] || o.textContent; });
+  try { localStorage.setItem(LANG_KEY, l); } catch { /* private mode */ }
+  requestAnimationFrame(placeThumb);
+  if (!first) buildScroll();
 }
+$$('.lang__opt').forEach((b) => b.addEventListener('click', () => { if (html.lang !== b.dataset.lang) setLang(b.dataset.lang); }));
+addEventListener('resize', placeThumb);
+(function initLang() {
+  let l = null;
+  try { l = localStorage.getItem(LANG_KEY); } catch { /* ignore */ }
+  if (l !== 'en' && l !== 'ar') l = /^ar\b/i.test(navigator.language || '') ? 'ar' : 'en';
+  setLang(l, true);
+})();
 
-// ---------------------------------------------- relayout (worldflight.md §7b) --
-function relayout() { dispatchEvent(new Event('resize')); }
-addEventListener('load', relayout);
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
-
-// ------------------------------------------------------------- track position --
-const flight = document.getElementById('flight');
-const W = Array.from(flight.querySelectorAll('[data-sc-segment]')).map((s) => parseFloat(s.getAttribute('data-sc-w')) || 1.3);
-const TOTAL = W.reduce((a, b) => a + b, 0);
-const C0 = []; { let run = 0; for (const w of W) { C0.push(run); run += w; } }
-function track() {
-  const seg = Math.max(0, Math.min(W.length - 1, parseInt(root.style.getPropertyValue('--sc-seg')) || 0));
-  const segp = clamp01(parseFloat(root.style.getPropertyValue('--sc-segp')) || 0);
-  return { seg, segp, pr: (C0[seg] + segp * W[seg]) / TOTAL };
+// =============================================================================
+// Smooth scroll and navigation.
+// =============================================================================
+let smoother = null;
+if (!INSTANT) {
+  try { smoother = ScrollSmoother.create({ smooth: 1.1, effects: false, smoothTouch: 0, normalizeScroll: false }); }
+  catch (e) { smoother = null; }
 }
-
-// ------------------------------------------------ the requisition writes itself --
-const req = document.getElementById('req');
-const reqLines = Array.from(document.querySelectorAll('#reqLines li'));
-const reqNow = document.getElementById('reqNow');
-const reqPick = document.getElementById('reqPick');
-const reqToggle = document.getElementById('reqToggle');
-// local progress within each leg at which its line is written
-const WRITE_AT = [0.10, 0.34, 0.58, 0.50, 0.82, 0.42, 0.55];
-let lastDone = -1;
-function updateReq({ seg, segp }) {
-  let done = -1;
-  reqLines.forEach((li, i) => { const on = seg > i || (seg === i && segp >= WRITE_AT[i]); li.classList.toggle('is-done', on); if (on) done = i; });
-  reqPick.hidden = !(seg >= 5 || (seg === 4 && segp > 0.86));
-  if (done !== lastDone) { lastDone = done; updateReqNow(); }
+const scrollTop = () => (smoother ? smoother.scrollTop() : (window.scrollY || 0));
+function scrollToEl(sel) {
+  const el = $(sel); if (!el) return;
+  if (smoother) { smoother.scrollTo(el, !INSTANT, 'top top'); return; }
+  const y = el.getBoundingClientRect().top + window.scrollY;
+  window.scrollTo({ top: y, behavior: INSTANT ? 'instant' : 'smooth' });
 }
-function updateReqNow() {
-  const li = reqLines[lastDone];
-  if (!li) { reqNow.textContent = ''; return; }
-  const k = li.querySelector(`.req__k [lang="${root.lang}"]`), v = li.querySelector(`.req__v [lang="${root.lang}"]`);
-  reqNow.textContent = `${k ? k.textContent : ''} · ${v ? v.textContent : ''}`;
+const menu = $('#menu'), burger = $('#burger');
+function closeMenu() {
+  if (menu.hidden) return;
+  menu.hidden = true; burger.setAttribute('aria-expanded', 'false'); html.classList.remove('menu-open');
+  if (smoother) smoother.paused(false); else document.body.style.overflow = '';
 }
-function setReqOpen(open) { req.classList.toggle('is-open', open); reqToggle.setAttribute('aria-expanded', String(open)); }
-setReqOpen(!small.matches);
-small.addEventListener('change', () => setReqOpen(!small.matches));
-reqToggle.addEventListener('click', () => setReqOpen(!req.classList.contains('is-open')));
-// the test picked on the way up carries into the booking, and back
-const picks = Array.from(document.querySelectorAll('input[name="pick"]'));
-picks.forEach((r) => r.addEventListener('change', () => { if (r.checked) dept.value = r.value; }));
-dept.addEventListener('change', () => { picks.forEach((r) => { r.checked = r.value === dept.value; }); });
-
-// language, now that everything it touches exists
-let saved = null; try { saved = localStorage.getItem('alnajaf-lang'); } catch (e) { /* ignore */ }
-setLang(saved === 'ar' || saved === 'en' ? saved : ((navigator.language || '').toLowerCase().startsWith('ar') ? 'ar' : 'en'), false);
-langBtn.addEventListener('click', () => setLang(root.lang === 'ar' ? 'en' : 'ar'));
-
-// ---------------------------------------- scrim plates mirror their copy block --
-const platesHost = document.getElementById('plates');
-const plates = Array.from(document.querySelectorAll('[data-sc-copy][data-plate]')).map((b) => {
-  const p = document.createElement('div'); p.className = `plate plate--${b.dataset.plate}`; platesHost.appendChild(p); return { b, p, o: '' };
+burger.addEventListener('click', () => {
+  const open = menu.hidden;
+  if (!open) return closeMenu();
+  menu.hidden = false; burger.setAttribute('aria-expanded', 'true'); html.classList.add('menu-open');
+  if (smoother) smoother.paused(true); else document.body.style.overflow = 'hidden';
 });
-function updatePlates() {
-  for (const x of plates) { const o = x.b.style.opacity || '0'; if (o !== x.o) { x.o = o; x.p.style.opacity = o; x.b.style.visibility = parseFloat(o) < 0.05 ? 'hidden' : ''; } }
+addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-to]'); if (!a) return;
+  e.preventDefault();
+  closeMenu();
+  if (a.dataset.dept) { const s = $('#f-dept'); if (s) s.value = a.dataset.dept; }
+  scrollToEl(a.dataset.to);
+  if (a.dataset.to === '#visit' && a.dataset.dept) setTimeout(() => $('#f-name')?.focus({ preventScroll: true }), INSTANT ? 0 : 1100);
+});
+
+// =============================================================================
+// The world's interface. The scene fills it in once three.js has loaded; until then
+// the calls are cheap no-ops, so the score never waits on the 3D layer.
+// =============================================================================
+const world = { chapter: 'top', p: 0, night: 0, set(ch, p) { this.chapter = ch; this.p = p; this.dirty = true; }, dirty: true };
+
+// =============================================================================
+// The score. One gsap.context, rebuilt whole on a language switch because line
+// splits, directions and measures all change together.
+// =============================================================================
+let ctx = null, splits = [], mm = null;
+const NIGHT = { '--g': '#0a0e17', '--g2': '#10162a', '--surface': '#141b2c', '--line': 'rgba(242, 243, 241, 0.16)', '--ink': '#f2f3f1', '--ink2': '#aab2bf', '--ink3': '#6d7684', '--accent': '#ff5f52', '--shadow': '0, 0, 0' };
+const PAPER = { '--g': '#f3f4f2', '--g2': '#e8ebe8', '--surface': '#fbfbfa', '--line': 'rgba(18, 22, 27, 0.14)', '--ink': '#12161b', '--ink2': '#566069', '--ink3': '#8a939b', '--accent': '#c92b23', '--shadow': '18, 22, 27' };
+const gutterPx = () => parseFloat(getComputedStyle(html).getPropertyValue('--gutter')) || 24;
+
+function splitLines(section) {
+  const h = $('[data-split]', section); if (!h) return [];
+  const el = h.querySelector(`[lang="${html.lang}"]`); if (!el) return [];
+  const s = SplitText.create(el, { type: 'lines', mask: 'lines', linesClass: 'line-in', aria: 'auto' });
+  splits.push(s);
+  return s.lines;
 }
 
-// ------------------------------------------------------------- navigation --
-function flyTo(top) { scrollTo({ top, behavior: reduce ? 'instant' : 'smooth' }); }
-document.querySelectorAll('[data-book]').forEach((a) => a.addEventListener('click', (e) => {
-  e.preventDefault(); flyTo(root.scrollHeight - innerHeight);
-  setTimeout(() => { const f = document.getElementById('f-name'); if (f) f.focus({ preventScroll: true }); }, reduce ? 50 : 1100);
-}));
-document.querySelectorAll('[data-top]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); flyTo(0); }));
-// keyboard focus into the finale while it is still dark: bring the flight to the end
-const finale = document.getElementById('finale');
-finale.addEventListener('focusin', () => { if (parseFloat(finale.style.opacity || '0') < 0.85) flyTo(root.scrollHeight - innerHeight); });
+function buildScroll() {
+  if (mm) mm.revert();
+  if (ctx) ctx.revert();
+  splits.forEach((s) => s.revert()); splits = [];
+  $$('.chapter--tests').forEach((s) => { s.style.height = ''; });
+  const dir = dirSign();
+  const scrub = INSTANT ? true : 0.5;
+  ctx = gsap.context(() => {
+    // ---- 00 hero: the lines slide apart at their own speeds as the page leaves them
+    const heroLines = $$(`.hero__title .l[lang="${html.lang}"] .line`);
+    if (!REDUCED) {
+      gsap.timeline({ scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub } })
+        .to(heroLines[0], { xPercent: -16 * dir, ease: 'none' }, 0)
+        .to(heroLines[1], { xPercent: 10 * dir, ease: 'none' }, 0)
+        .to(heroLines[2], { xPercent: -6 * dir, ease: 'none' }, 0)
+        .to('.hero__eyebrow', { opacity: 0, y: -16, ease: 'none' }, 0)
+        .to('.scrollcue', { opacity: 0, ease: 'none' }, 0)
+        .to('.hero__foot', { opacity: 0, y: 24, ease: 'none' }, 0.25);
+    }
+    ScrollTrigger.create({ trigger: '#top', start: 'top top', end: 'bottom top', onUpdate: (s) => world.set('top', s.progress), onToggle: (s) => s.isActive && world.set('top', s.progress) });
 
-// --------------------------------------------------------- booking → WhatsApp --
-const form = document.getElementById('booking');
-const fName = document.getElementById('f-name'), fPhone = document.getElementById('f-phone'), fMsg = document.getElementById('f-msg');
-function setErr(input, id, bad) { input.closest('.field').classList.toggle('is-invalid', bad); document.getElementById(id).hidden = !bad; input.setAttribute('aria-invalid', String(bad)); }
+    // ---- 01 lab: pinned. Title lines rise, the question lands, the figures count.
+    {
+      const lines = splitLines($('#lab'));
+      const counters = $$('#lab .num[data-count]').map((el) => ({ el, to: parseFloat(el.dataset.count), dec: parseInt(el.dataset.dec || '0', 10), v: 0 }));
+      const tl = gsap.timeline({ scrollTrigger: {
+        trigger: '#lab', start: 'top top', end: 'bottom bottom', pin: '#lab .chapter__pin', pinSpacing: false, scrub, anticipatePin: 1,
+        onUpdate: (s) => world.set('lab', s.progress), onToggle: (s) => s.isActive && world.set('lab', s.progress),
+      } });
+      tl.from(lines, { yPercent: 110, stagger: 0.08, duration: 0.6 }, 0)
+        .from('.lab__q', { opacity: 0, y: 24, duration: 0.45 }, 0.4)
+        .from('.lab__body .prose', { opacity: 0, y: 18, duration: 0.45 }, 0.6)
+        .from('.stats', { opacity: 0, y: 18, duration: 0.35 }, 0.85);
+      counters.forEach((c, i) => {
+        tl.to(c, { v: c.to, duration: 0.9, ease: 'power2.out', onUpdate: () => { c.el.textContent = c.v.toFixed(c.dec); } }, 0.95 + i * 0.05);
+      });
+      tl.to({}, { duration: 0.5 });
+    }
+
+    // ---- 02 tests: the rail. Sideways under the wheel on desktop, under the thumb on a phone.
+    mm = gsap.matchMedia();
+    mm.add({ desk: '(min-width: 861px)', phone: '(max-width: 860px)' }, (c) => {
+      const lines = splitLines($('#tests'));
+      const section = $('#tests'), track = $('#railTrack');
+      if (c.conditions.desk) {
+        const dist = () => Math.max(0, track.scrollWidth - (innerWidth - gutterPx()));
+        const size = () => { section.style.height = Math.round(innerHeight + dist() + innerHeight * 0.35) + 'px'; };
+        size();
+        ScrollTrigger.addEventListener('refreshInit', size);
+        const tl = gsap.timeline({ scrollTrigger: {
+          trigger: section, start: 'top top', end: 'bottom bottom', pin: '#tests .chapter__pin', pinSpacing: false, scrub, anticipatePin: 1, invalidateOnRefresh: true,
+          onUpdate: (s) => world.set('tests', s.progress), onToggle: (s) => s.isActive && world.set('tests', s.progress),
+        } });
+        tl.from(lines, { yPercent: 110, stagger: 0.08, duration: 0.5 }, 0)
+          .from('.tests__intro', { opacity: 0, y: 16, duration: 0.4 }, 0.3)
+          .to(track, { x: () => -dist() * dir, ease: 'none', duration: 4 }, 0.5)
+          .to({}, { duration: 0.4 });
+        return () => { ScrollTrigger.removeEventListener('refreshInit', size); section.style.height = ''; };
+      }
+      gsap.set(track, { x: 0 });
+      ScrollTrigger.create({ trigger: section, start: 'top 70%', end: 'bottom 30%', onUpdate: (s) => world.set('tests', s.progress), onToggle: (s) => s.isActive && world.set('tests', s.progress) });
+      if (!INSTANT) gsap.from(lines, { yPercent: 110, stagger: 0.08, duration: 0.8, scrollTrigger: { trigger: section, start: 'top 75%', once: true } });
+      return () => {};
+    });
+
+    // ---- 03 method: pinned, the peak. The ground goes to night on the way in and back on the way out.
+    {
+      const lines = splitLines($('#method'));
+      const steps = $$('#steps .step'), peak = $('#peak');
+      let cur = 0;
+      const setStep = (p) => {
+        const i = Math.min(4, Math.floor(ramp(p, 0.1, 0.92) * 5));
+        if (i !== cur) { cur = i; steps.forEach((s, k) => s.classList.toggle('is-on', k === i)); }
+        peak.style.opacity = (smooth(ramp(p, 0.60, 0.66)) * (1 - smooth(ramp(p, 0.79, 0.85)))).toFixed(3);
+      };
+      const tl = gsap.timeline({ scrollTrigger: {
+        trigger: '#method', start: 'top top', end: 'bottom bottom', pin: '#method .chapter__pin', pinSpacing: false, scrub, anticipatePin: 1,
+        onUpdate: (s) => { world.set('method', s.progress); setStep(s.progress); },
+        onToggle: (s) => { if (s.isActive) { world.set('method', s.progress); setStep(s.progress); } },
+      } });
+      tl.from(lines, { yPercent: 110, stagger: 0.08, duration: 0.5 }, 0)
+        .from('.steps', { opacity: 0, y: 20, duration: 0.4 }, 0.2)
+        .to({}, { duration: 4 });
+      // The ground eases through the transition; the ink flips at its midpoint. Tweening both
+      // linearly meets in the middle at grey-on-grey, and the copy vanishes for a screen of scroll.
+      const GROUND = ['--g', '--g2', '--surface', '--shadow'], INK = ['--ink', '--ink2', '--ink3', '--line', '--accent'];
+      const pick = (o, keys) => Object.fromEntries(keys.map((k) => [k, o[k]]));
+      const crossfade = (trigger, start, end, from, to, nightOf) => {
+        const st = { trigger, start, end, scrub };
+        gsap.fromTo(html, pick(from, GROUND), { ...pick(to, GROUND), ease: 'power3.inOut', immediateRender: false, scrollTrigger: { ...st, onUpdate: (s) => { world.night = nightOf(s.progress); } } });
+        gsap.fromTo(html, pick(from, INK), { ...pick(to, INK), ease: 'steps(1)', immediateRender: false, scrollTrigger: st });
+      };
+      crossfade('#method', 'top 85%', 'top 15%', PAPER, NIGHT, (p) => p);
+      crossfade('#people', 'top 95%', 'top 40%', NIGHT, PAPER, (p) => 1 - p);
+    }
+
+    // ---- 04 people: flowing. Rows and cards arrive as they enter, once.
+    {
+      const lines = splitLines($('#people'));
+      ScrollTrigger.create({ trigger: '#people', start: 'top 65%', end: 'bottom 35%', onUpdate: (s) => world.set('people', s.progress), onToggle: (s) => s.isActive && world.set('people', s.progress) });
+      if (!INSTANT) {
+        gsap.from(lines, { yPercent: 110, stagger: 0.08, duration: 0.8, scrollTrigger: { trigger: '#people', start: 'top 75%', once: true } });
+        ScrollTrigger.batch('#people .inst__row, #people .person', { start: 'top 88%', once: true, onEnter: (els) => gsap.from(els, { opacity: 0, y: 22, stagger: 0.06, duration: 0.7, overwrite: true }) });
+      }
+    }
+
+    // ---- 05 visit: flowing, and it holds.
+    {
+      const lines = splitLines($('#visit'));
+      ScrollTrigger.create({ trigger: '#visit', start: 'top 70%', end: 'bottom bottom', onUpdate: (s) => world.set('visit', s.progress), onToggle: (s) => s.isActive && world.set('visit', s.progress) });
+      if (!INSTANT) {
+        gsap.from(lines, { yPercent: 110, stagger: 0.08, duration: 0.8, scrollTrigger: { trigger: '#visit', start: 'top 75%', once: true } });
+        gsap.from('#visit .contact__row', { opacity: 0, y: 18, stagger: 0.08, duration: 0.7, scrollTrigger: { trigger: '#visit .contact', start: 'top 85%', once: true } });
+        gsap.from('#visit .book', { opacity: 0, y: 26, duration: 0.8, scrollTrigger: { trigger: '#visit .book', start: 'top 85%', once: true } });
+      }
+    }
+
+    // ---- the index in the bar follows the chapter under the middle of the screen
+    ['lab', 'tests', 'method', 'people', 'visit'].forEach((id) => {
+      const link = $(`.index a[href="#${id}"]`); if (!link) return;
+      ScrollTrigger.create({ trigger: '#' + id, start: 'top 50%', end: 'bottom 50%', toggleClass: { targets: link, className: 'is-active' } });
+    });
+  });
+  ScrollTrigger.refresh();
+}
+
+// =============================================================================
+// Pointer: magnetic controls, tilting cards, and the cursor. Fine pointers only.
+// =============================================================================
+if (FINE.matches && !REDUCED) {
+  // magnet
+  $$('[data-magnet]').forEach((el) => {
+    const label = el.querySelector('.btn__l');
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+      gsap.to(el, { x: dx * 0.32, y: dy * 0.32, duration: 0.5, overwrite: 'auto' });
+      if (label) gsap.to(label, { x: dx * 0.12, y: dy * 0.12, duration: 0.5, overwrite: 'auto' });
+    });
+    el.addEventListener('pointerleave', () => {
+      // A soft return, not a spring: a control that swings back past its rest position can
+      // swing out from under a pointer that is on its way back to it.
+      gsap.to(el, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.9)', overwrite: 'auto' });
+      if (label) gsap.to(label, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.9)', overwrite: 'auto' });
+    });
+  });
+  // tilt
+  $$('.card, .person').forEach((el) => {
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+      gsap.to(el, { rotateY: px * 9, rotateX: -py * 9, transformPerspective: 900, duration: 0.5 });
+    });
+    el.addEventListener('pointerleave', () => gsap.to(el, { rotateY: 0, rotateX: 0, duration: 0.9, ease: 'power3.out' }));
+  });
+  // cursor
+  const cur = $('#cursor'), ring = $('.cursor__ring'), dot = $('.cursor__dot'), lab = $('.cursor__label');
+  const pos = { x: innerWidth / 2, y: innerHeight / 2, rx: innerWidth / 2, ry: innerHeight / 2 };
+  // The cursor exists only once a pointer has actually moved; before that there is nothing to follow.
+  addEventListener('pointermove', (e) => {
+    if (!html.classList.contains('has-cursor')) { html.classList.add('has-cursor'); pos.rx = e.clientX; pos.ry = e.clientY; }
+    pos.x = e.clientX; pos.y = e.clientY;
+    const h = e.target.closest?.('[data-hover]');
+    cur.classList.toggle('is-hover', !!h && h.dataset.hover !== 'drag');
+    cur.classList.toggle('is-drag', !!h && h.dataset.hover === 'drag');
+    if (h && h.dataset.hover === 'drag') lab.textContent = html.lang === 'ar' ? 'مرّر' : 'Scroll';
+  }, { passive: true });
+  addEventListener('pointerleave', () => { cur.style.opacity = '0'; });
+  addEventListener('pointerenter', () => { cur.style.opacity = '1'; });
+  gsap.ticker.add(() => {
+    pos.rx = lerp(pos.rx, pos.x, 0.18); pos.ry = lerp(pos.ry, pos.y, 0.18);
+    dot.style.transform = `translate(${pos.x}px, ${pos.y}px) ${cur.classList.contains('is-hover') ? 'scale(0.6)' : cur.classList.contains('is-drag') ? 'scale(0)' : ''}`;
+    ring.style.left = pos.rx + 'px'; ring.style.top = pos.ry + 'px';
+    lab.style.left = pos.rx + 'px'; lab.style.top = pos.ry + 'px';
+  });
+}
+
+// =============================================================================
+// Booking: compose the WhatsApp message. Nothing is stored anywhere.
+// =============================================================================
+const form = $('#booking');
+const VALID = { 'f-name': (v) => v.length >= 2, 'f-phone': (v) => v.replace(/[^\d+]/g, '').length >= 7 };
+// An error clears the moment the field is put right, so the form never holds a stale message
+// (and never keeps the submit pushed below the fold by one).
+form.addEventListener('input', (e) => {
+  const rule = VALID[e.target.id]; if (!rule || !rule(e.target.value.trim())) return;
+  e.target.closest('.field').classList.remove('is-bad');
+  const err = $('#' + e.target.id.replace('f-', 'e-')); if (err) err.hidden = true;
+});
 form.addEventListener('submit', (e) => {
   e.preventDefault();
-  const name = fName.value.trim(), phone = fPhone.value.trim(), msg = fMsg.value.trim();
-  const badName = name.length < 2, badPhone = phone.replace(/\D/g, '').length < 7;
-  setErr(fName, 'e-name', badName); setErr(fPhone, 'e-phone', badPhone);
-  if (badName) { fName.focus(); return; } if (badPhone) { fPhone.focus(); return; }
-  const o = dept.options[dept.selectedIndex];
-  const text = T.wa[root.lang]({ name, phone, msg, dept: o.dataset[root.lang] || o.textContent });
-  const url = `https://wa.me/9647809422636?text=${encodeURIComponent(text)}`;
-  const w = window.open(url, '_blank', 'noopener'); if (!w) location.href = url;
+  const name = $('#f-name'), phone = $('#f-phone'), dept = $('#f-dept'), msg = $('#f-msg');
+  let ok = true;
+  const check = (input, errId, valid) => {
+    const bad = !valid(input.value.trim());
+    input.closest('.field').classList.toggle('is-bad', bad);
+    $('#' + errId).hidden = !bad;
+    if (bad && ok) { input.focus(); ok = false; }
+  };
+  check(name, 'e-name', VALID['f-name']);
+  check(phone, 'e-phone', VALID['f-phone']);
+  if (!ok) return;
+  const ar = html.lang === 'ar';
+  const test = dept.selectedOptions[0]?.textContent || '';
+  const lines = ar
+    ? [`مرحباً، أود حجز عينة.`, `الاسم: ${name.value.trim()}`, `الهاتف: ${phone.value.trim()}`, `الفحص: ${test}`, msg.value.trim() ? `ملاحظة: ${msg.value.trim()}` : null]
+    : [`Hello, I would like to book a sample.`, `Name: ${name.value.trim()}`, `Phone: ${phone.value.trim()}`, `Test: ${test}`, msg.value.trim() ? `Note: ${msg.value.trim()}` : null];
+  const url = 'https://wa.me/9647809422636?text=' + encodeURIComponent(lines.filter(Boolean).join('\n'));
+  window.open(url, '_blank', 'noopener');
 });
-[fName, fPhone].forEach((i) => i.addEventListener('input', () => { if (i.getAttribute('aria-invalid') === 'true') setErr(i, i === fName ? 'e-name' : 'e-phone', false); }));
 
-// --------------------------------------------------------------- live layer --
-// Near-focus particulate over the hero, the seal over the report. Runs only while its
-// phase is on screen, only without reduced motion, only where WebGL exists.
-const live = document.getElementById('live');
-const canvas = document.getElementById('liveCanvas');
-let liveApi = null;
-function webglOk() { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; } }
-const saveData = navigator.connection && navigator.connection.saveData;
+// =============================================================================
+// Boot the score, then the world. The page is complete without the world.
+// =============================================================================
+// Line splitting measures real line boxes, so the score waits for the faces, with a ceiling
+// so a slow font never holds the page.
+let booted = false;
+function boot() {
+  if (booted) return; booted = true;
+  buildScroll(); placeThumb();
+  html.classList.add('sc-ready');
+  // If a face was still in flight when the lines were measured, measure them again once it lands.
+  if (document.fonts.status !== 'loaded') document.fonts.ready.then(() => buildScroll());
+}
+// fonts.ready resolves at once if nothing has asked for a face yet, which is the case before
+// first layout, so ask for the faces the score measures and then wait for them.
+const FACES = ['800 1em Archivo', '800 1em Cairo', '500 1em "Instrument Sans"', '500 1em "IBM Plex Sans Arabic"', '400 1em "Geist Mono"'];
+// The first paint can request faces of its own, so "loaded" has to hold across two frames.
+const nextFrame = () => new Promise(requestAnimationFrame);
+async function fontsIdle() {
+  for (let i = 0; i < 90; i++) {
+    await document.fonts.ready; await nextFrame();
+    if (document.fonts.status === 'loaded') { await nextFrame(); if (document.fonts.status === 'loaded') return; }
+  }
+}
+Promise.all(FACES.map((f) => document.fonts.load(f).catch(() => null))).then(fontsIdle).then(boot);
+setTimeout(boot, 2500);
+addEventListener('load', () => { boot(); ScrollTrigger.refresh(); });
+
+// -----------------------------------------------------------------------------
+// The world: one helix of porcelain and steel, built once, posed per chapter.
+// -----------------------------------------------------------------------------
 const THREE_URL = './vendor/three.module.min.js';
-if (!reduce && !saveData && webglOk()) {
-  // after the hero clip has had first claim on the connection
-  const start = () => import(THREE_URL).then((THREE) => { liveApi = buildLive(THREE); onScroll(); }).catch((err) => { console.warn('[live] not started:', err && err.message); });
-  if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2500 }); else setTimeout(start, 900);
+const canvas = $('#world'), stage = $('#stage');
+function webglOk() { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; } }
+if (!webglOk()) { html.classList.add('no-webgl'); stage.setAttribute('data-sc-verify-state', 'no-webgl'); }
+else {
+  import(THREE_URL).then((THREE) => { try { createWorld(THREE); } catch (e) { console.warn('world failed', e); html.classList.add('no-webgl'); stage.setAttribute('data-sc-verify-state', 'no-webgl'); } })
+    .catch((e) => { console.warn('three.js did not load', e); html.classList.add('no-webgl'); stage.setAttribute('data-sc-verify-state', 'no-webgl'); });
 }
 
-// A small equirectangular sky, PMREM-filtered. Cheaper than an imported room and
-// it removes the last dependency beyond three.js itself.
 function skyEnvironment(THREE, renderer) {
-  const c = document.createElement('canvas'); c.width = 128; c.height = 64;
+  // A small studio: bright soft top, grey floor, one hard key upper-left, a faint warm fill lower-right.
+  const c = document.createElement('canvas'); c.width = 256; c.height = 128;
   const g = c.getContext('2d');
-  const grd = g.createLinearGradient(0, 0, 0, 64);
-  grd.addColorStop(0, '#e6eefb'); grd.addColorStop(0.45, '#79828f'); grd.addColorStop(1, '#0c0f13');
-  g.fillStyle = grd; g.fillRect(0, 0, 128, 64);
-  const key = g.createRadialGradient(30, 14, 0, 30, 14, 26);
-  key.addColorStop(0, 'rgba(255,255,255,0.95)'); key.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = key; g.fillRect(0, 0, 128, 64);
-  const warm = g.createRadialGradient(98, 46, 0, 98, 46, 30);
-  warm.addColorStop(0, 'rgba(255,176,120,0.5)'); warm.addColorStop(1, 'rgba(255,176,120,0)');
-  g.fillStyle = warm; g.fillRect(0, 0, 128, 64);
+  const grd = g.createLinearGradient(0, 0, 0, 128);
+  grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.5, '#cfd6dd'); grd.addColorStop(0.62, '#7d8791'); grd.addColorStop(1, '#2a3038');
+  g.fillStyle = grd; g.fillRect(0, 0, 256, 128);
+  const key = g.createRadialGradient(64, 30, 0, 64, 30, 54);
+  key.addColorStop(0, 'rgba(255,255,255,1)'); key.addColorStop(0.3, 'rgba(255,255,255,0.7)'); key.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = key; g.fillRect(0, 0, 256, 128);
+  const warm = g.createRadialGradient(200, 92, 0, 200, 92, 60);
+  warm.addColorStop(0, 'rgba(255,196,150,0.55)'); warm.addColorStop(1, 'rgba(255,196,150,0)');
+  g.fillStyle = warm; g.fillRect(0, 0, 256, 128);
   const tex = new THREE.CanvasTexture(c);
   tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace;
   const pm = new THREE.PMREMGenerator(renderer);
@@ -158,117 +387,191 @@ function skyEnvironment(THREE, renderer) {
   return env;
 }
 
-function buildLive(THREE) {
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+function createWorld(THREE) {
+  // A verification browser renders in software at a few frames a second. It gets a cheaper
+  // scene and a synchronous frame on every scroll, so each screenshot is the frame for its position.
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !AUTOMATED, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(AUTOMATED ? 1 : Math.min(devicePixelRatio || 1, 1.75));
   renderer.setClearColor(0x000000, 0);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100); camera.position.set(0, 0, 10);
-  scene.environment = skyEnvironment(THREE, renderer); scene.environmentIntensity = 0.55;
-  const key = new THREE.DirectionalLight(0xcfe3ff, 2.6); key.position.set(-4, 6, 5); scene.add(key);
-  const fill = new THREE.PointLight(0xffb27a, 1.1, 0, 1.6); fill.position.set(4, -3, 4); scene.add(fill);
+  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 80);
+  camera.position.set(0, 0, 20);
+  scene.environment = skyEnvironment(THREE, renderer);
+  scene.environmentIntensity = 1.0;
+  const key = new THREE.DirectionalLight(0xffffff, 1.7); key.position.set(-6, 9, 7); scene.add(key);
+  const rim = new THREE.DirectionalLight(0xdfe8ff, 0.9); rim.position.set(7, -3, -5); scene.add(rim);
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x7f8a99, 0.45); scene.add(hemi);
+  const glow = new THREE.PointLight(0xff5040, 0, 10, 1.6); scene.add(glow);
 
-  // ---- hero: soft particulate in a near slab + a warm bloom plane --------------
-  const heroG = new THREE.Group(); scene.add(heroG);
-  const spriteTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,236,214,1)'); gr.addColorStop(0.35, 'rgba(255,226,200,0.55)'); gr.addColorStop(1, 'rgba(255,220,190,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
-  const N = 150, pos = new Float32Array(N * 3), seed = new Float32Array(N * 2);
-  let s = 7; const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
-  for (let i = 0; i < N; i++) { pos[i * 3] = (rnd() - 0.5) * 18; pos[i * 3 + 1] = (rnd() - 0.5) * 12; pos[i * 3 + 2] = rnd() * 7 - 1; seed[i * 2] = rnd() * 6.28; seed[i * 2 + 1] = 0.2 + rnd() * 0.8; }
-  const base = pos.slice();
-  const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const points = new THREE.Points(pg, new THREE.PointsMaterial({ map: spriteTex, size: 0.55, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true }));
-  heroG.add(points);
-  const bloom = new THREE.Mesh(new THREE.PlaneGeometry(14, 10), new THREE.MeshBasicMaterial({ map: spriteTex, transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending, color: 0xdfe9ff }));
-  bloom.position.set(-5, 3.2, -4); heroG.add(bloom);
+  // ---- the helix ----------------------------------------------------------------
+  const RUNGS = 24, NB = 84, H = 12.4, R = 1.5, TURNS = 2.05, LIT = 13;
+  const beadGeo = new THREE.SphereGeometry(0.2, AUTOMATED ? 14 : 28, AUTOMATED ? 10 : 20);
+  const beadMat = new THREE.MeshPhysicalMaterial({ color: 0xf6f6f4, roughness: 0.36, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.28, envMapIntensity: 1 });
+  const rungGeo = new THREE.CylinderGeometry(0.058, 0.058, 1, AUTOMATED ? 8 : 14);
+  const rungMat = new THREE.MeshStandardMaterial({ color: 0xc4c9ce, metalness: 1, roughness: 0.3, envMapIntensity: 1.25 });
+  const litMat = new THREE.MeshStandardMaterial({ color: 0xff3b2e, emissive: 0xff2a1c, emissiveIntensity: 0, metalness: 0.15, roughness: 0.45 });
+  const beads = new THREE.InstancedMesh(beadGeo, beadMat, NB * 2);
+  const rungs = new THREE.InstancedMesh(rungGeo, rungMat, RUNGS * 2);
+  const litA = new THREE.Mesh(rungGeo, litMat), litB = new THREE.Mesh(rungGeo, litMat);
+  const helix = new THREE.Group(); helix.add(beads, rungs, litA, litB); scene.add(helix);
+  const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), S = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
+  const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), E = new THREE.Vector3(), D = new THREE.Vector3(), Wp = new THREE.Vector3();
+  const strand = (t, side, twist, open, out) => {
+    // side 0 is strand A, side 1 is strand B. `open` slides B around the axis and pushes both outward.
+    const th = t * TURNS * Math.PI * 2 + twist + (side ? Math.PI - open * 1.15 : 0);
+    const r = R * (1 + open * 0.5);
+    return out.set(Math.cos(th) * r, (t - 0.5) * H, Math.sin(th) * r);
+  };
+  const placeRung = (mesh, from, to, i) => {
+    D.subVectors(to, from); const len = D.length() || 0.0001;
+    Q.setFromUnitVectors(UP, D.normalize());
+    C.addVectors(from, to).multiplyScalar(0.5);
+    if (mesh.isInstancedMesh) { M.compose(C, Q, S.set(1, len, 1)); mesh.setMatrixAt(i, M); }
+    else { mesh.position.copy(C); mesh.quaternion.copy(Q); mesh.scale.set(1, len, 1); }
+  };
+  function layout(twist, open, lit) {
+    for (let i = 0; i < NB; i++) {
+      const t = i / (NB - 1);
+      for (let side = 0; side < 2; side++) {
+        strand(t, side, twist, open, A);
+        M.compose(A, Q.identity(), S.set(1, 1, 1)); beads.setMatrixAt(side * NB + i, M);
+      }
+    }
+    for (let i = 0; i < RUNGS; i++) {
+      const t = i / (RUNGS - 1);
+      strand(t, 0, twist, open, A); strand(t, 1, twist, open, B);
+      C.addVectors(A, B).multiplyScalar(0.5);
+      const reach = 1 - open * 0.78;
+      if (i === LIT) {
+        E.copy(A).lerp(C, reach); placeRung(litA, A, E, 0);
+        E.copy(B).lerp(C, reach); placeRung(litB, B, E, 0);
+        M.compose(C, Q.identity(), S.set(0, 0, 0)); rungs.setMatrixAt(i * 2, M); rungs.setMatrixAt(i * 2 + 1, M);
+        Wp.copy(C); helix.localToWorld(Wp); glow.position.copy(Wp);
+      } else {
+        E.copy(A).lerp(C, reach); placeRung(rungs, A, E, i * 2);
+        E.copy(B).lerp(C, reach); placeRung(rungs, B, E, i * 2 + 1);
+      }
+    }
+    beads.instanceMatrix.needsUpdate = true; rungs.instanceMatrix.needsUpdate = true;
+    litMat.emissiveIntensity = lit * 3.2;
+    litMat.color.setHex(lit > 0.02 ? 0xff3b2e : 0xc4c9ce);
+    litMat.metalness = lerp(1, 0.15, lit); litMat.roughness = lerp(0.3, 0.45, lit);
+    glow.intensity = lit * 40;
+  }
 
-  // ---- seal: the crescent and the helix from the lab's own mark ---------------
-  const sealG = new THREE.Group(); scene.add(sealG);
-  const Rr = 1.0, rr = 0.8, d = 0.42; const ix = (d * d + Rr * Rr - rr * rr) / (2 * d), iy = Math.sqrt(Rr * Rr - ix * ix);
-  const a1 = Math.atan2(iy, ix), b1 = Math.atan2(iy, ix - d);
-  const shape = new THREE.Shape(); shape.absarc(0, 0, Rr, a1, Math.PI * 2 - a1, false); shape.absarc(d, 0, rr, -b1, b1, true);
-  const cres = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.2, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 3, curveSegments: 64 }), new THREE.MeshPhysicalMaterial({ color: 0xc72f39, metalness: 0.4, roughness: 0.32, clearcoat: 0.8, clearcoatRoughness: 0.2, envMapIntensity: 1.2 }));
-  cres.position.z = -0.1; sealG.add(cres);
-  const ringMat = new THREE.MeshPhysicalMaterial({ color: 0x2f9d5c, metalness: 0.45, roughness: 0.35, clearcoat: 0.7, envMapIntensity: 1.1 });
-  for (let k = 0; k < 4; k++) { const seg = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.055, 12, 48, Math.PI / 2 - 0.22), ringMat); seg.rotation.z = k * Math.PI / 2 + 0.11; seg.position.set(d, 0, 0.02); sealG.add(seg); }
-  const strand = (col, off) => { const pts = []; for (let i = 0; i <= 40; i++) { const a = i / 40 * Math.PI * 2 * 1.6 + off; pts.push(new THREE.Vector3(d + 0.17 * Math.cos(a), -0.62 + i / 40 * 1.24, 0.17 * Math.sin(a) + 0.05)); } return new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 160, 0.036, 8, false), new THREE.MeshPhysicalMaterial({ color: col, metalness: 0.5, roughness: 0.3, clearcoat: 0.6, envMapIntensity: 1.2 })); };
-  sealG.add(strand(0x9c2b34, 0), strand(0x2c4f8e, Math.PI * 0.84));
-  const rungMat = new THREE.MeshStandardMaterial({ color: 0xd9dde2, metalness: 0.7, roughness: 0.3 });
-  for (let i = 0; i <= 14; i++) { const a = i / 14 * Math.PI * 2 * 1.6, y = -0.62 + i / 14 * 1.24; const A = new THREE.Vector3(d + 0.17 * Math.cos(a), y, 0.17 * Math.sin(a) + 0.05), B = new THREE.Vector3(d + 0.17 * Math.cos(a + Math.PI * 0.84), y, 0.17 * Math.sin(a + Math.PI * 0.84) + 0.05); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, A.distanceTo(B), 6), rungMat); m.position.copy(A).lerp(B, 0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize()); sealG.add(m); }
-  sealG.scale.setScalar(1.55); sealG.visible = false;
+  // ---- atmosphere: two planes of drifting particulate for depth against the object ----
+  const spriteTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.5, 'rgba(255,255,255,0.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+  let seed = 11; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const makePlane = (n, z0, z1, size, opacity) => {
+    const pos = new Float32Array(n * 3), ph = new Float32Array(n);
+    for (let i = 0; i < n; i++) { pos[i * 3] = (rnd() - 0.5) * 34; pos[i * 3 + 1] = (rnd() - 0.5) * 20; pos[i * 3 + 2] = z0 + rnd() * (z1 - z0); ph[i] = rnd() * 6.28; }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({ map: spriteTex, size, transparent: true, opacity, depthWrite: false, color: 0x2a3036, sizeAttenuation: true });
+    const pts = new THREE.Points(geo, mat); pts.userData = { base: pos.slice(), ph, n }; scene.add(pts); return pts;
+  };
+  const far = makePlane(160, -9, -3, 0.16, 0.28), near = makePlane(40, 3, 8, 0.34, 0.16);
 
-  // ---- state ------------------------------------------------------------------
+  // ---- poses ----------------------------------------------------------------------
+  // fx, fy are fractions of the visible half-width and half-height at the object's depth.
+  const POSE = {
+    top:    { d: { fx: 0.30, fy: -0.06, s: 0.80, rz: 0.36, rx: 0.10 }, p: { fx: 0.34, fy: 0.30, s: 0.45, rz: 0.30, rx: 0.06 } },
+    lab:    { d: { fx: -0.34, fy: 0.02, s: 0.80, rz: -0.30, rx: 0.06 }, p: { fx: 0.62, fy: -0.15, s: 0.50, rz: -0.36, rx: 0.06 } },
+    tests:  { d: { fx: 0.40, fy: 0.34, s: 0.40, rz: 0.95, rx: 0.30 }, p: { fx: 0.44, fy: 0.42, s: 0.28, rz: 0.95, rx: 0.30 } },
+    method: { d: { fx: 0.24, fy: 0.00, s: 0.92, rz: 0.00, rx: 0.00 }, p: { fx: 0.26, fy: 0.12, s: 0.56, rz: 0.00, rx: 0.00 } },
+    people: { d: { fx: 0.40, fy: 0.30, s: 0.66, rz: 0.62, rx: 0.12, dy: 0.9 }, p: { fx: 0.64, fy: 0.30, s: 0.42, rz: 0.62, rx: 0.12, dy: 0.9 } },
+    visit:  { d: { fx: 0.36, fy: 0.20, s: 0.58, rz: 0.55, rx: 0.10, dy: 0.5 }, p: { fx: 0.66, fy: -0.40, s: 0.36, rz: 0.60, rx: 0.10, dy: 0.3 } },
+  };
+  const cur = { x: 0, y: 0, s: 0.8, rz: 0.3, rx: 0.1, open: 0, lit: 0, night: 0, ry: 0 };
+  const tgt = { ...cur };
   const ptr = { x: 0, y: 0, tx: 0, ty: 0 };
-  if (fine.matches) addEventListener('pointermove', (e) => { ptr.tx = (e.clientX / innerWidth - 0.5) * 2; ptr.ty = (e.clientY / innerHeight - 0.5) * -2; }, { passive: true });
-  let raf = 0, phase = 'off', t0 = performance.now(), hidden = document.hidden;
-  document.addEventListener('visibilitychange', () => { hidden = document.hidden; if (!hidden) wake(); });
-  function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+  if (FINE.matches && !REDUCED) addEventListener('pointermove', (e) => { ptr.tx = (e.clientX / innerWidth - 0.5) * 2; ptr.ty = (e.clientY / innerHeight - 0.5) * -2; }, { passive: true });
+  const cBead = new THREE.Color(), cRung = new THREE.Color(), cDust = new THREE.Color();
+  const BEAD_DAY = new THREE.Color(0xf6f6f4), BEAD_NIGHT = new THREE.Color(0x1b2230);
+  const RUNG_DAY = new THREE.Color(0xc4c9ce), RUNG_NIGHT = new THREE.Color(0x9aa5b4);
+  const DUST_DAY = new THREE.Color(0x2a3036), DUST_NIGHT = new THREE.Color(0xdfe6f0);
+
+  let visW = 10, visH = 10;
+  function resize() {
+    const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+    visH = 2 * camera.position.z * Math.tan((camera.fov * Math.PI) / 360); visW = visH * camera.aspect;
+    world.dirty = true;
+  }
   addEventListener('resize', resize); resize();
 
-  let cur = { pr: 0, seg: 0, segp: 0 };
+  let hidden = document.hidden, raf = 0, last = performance.now(), t0 = last, lastState = '';
+  document.addEventListener('visibilitychange', () => { hidden = document.hidden; if (!hidden) wake(); });
+  const wake = () => { if (!raf) raf = requestAnimationFrame(frame); };
+
+  function retarget() {
+    const pose = (POSE[world.chapter] || POSE.top)[PHONE.matches ? 'p' : 'd'];
+    const fit = Math.min(1, (visH * 0.92) / H);
+    const p = world.p;
+    tgt.x = pose.fx * dirSign() * visW * 0.5; tgt.y = (pose.fy + (pose.dy || 0) * (0.5 - p)) * visH * 0.5; tgt.s = pose.s * fit * (visH / 10.7);
+    tgt.rz = pose.rz; tgt.rx = pose.rx;
+    if (world.chapter === 'method') {
+      tgt.open = smooth(ramp(p, 0.22, 0.48)) * (1 - smooth(ramp(p, 0.86, 0.97)));
+      tgt.lit = smooth(ramp(p, 0.58, 0.65)) * (1 - smooth(ramp(p, 0.80, 0.87)));
+      tgt.s *= 1 + tgt.open * 0.08;
+    } else { tgt.open = 0; tgt.lit = 0; }
+    tgt.night = world.night;
+  }
+
   function frame(now) {
     raf = 0;
-    if (hidden || phase === 'off') return;
+    if (hidden) return;
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
     const time = (now - t0) / 1000;
-    ptr.x = lerp(ptr.x, ptr.tx, 0.06); ptr.y = lerp(ptr.y, ptr.ty, 0.06);
-    let sig = phase;
-    if (phase === 'hero') {
-      const fade = 1 - smooth(ramp(cur.pr, 0.062, 0.128));
-      const p = pg.attributes.position.array;
-      for (let i = 0; i < N; i++) { const sp = seed[i * 2 + 1]; p[i * 3] = base[i * 3] + Math.sin(time * 0.18 * sp + seed[i * 2]) * 0.6; p[i * 3 + 1] = base[i * 3 + 1] + Math.cos(time * 0.14 * sp + seed[i * 2] * 1.7) * 0.45 + cur.pr * 22; }
-      pg.attributes.position.needsUpdate = true;
-      heroG.position.set(ptr.x * 0.9, ptr.y * 0.6, 0); bloom.position.set(-5 - ptr.x * 0.35, 3.2 - ptr.y * 0.25, -4);
-      points.material.opacity = 0.5 * fade; bloom.material.opacity = 0.16 * fade;
-      heroG.visible = fade > 0.01; sealG.visible = false;
-      sig += `:${fade.toFixed(2)}`;
-    } else {
-      const settle = smooth(ramp(cur.pr, 0.905, 0.985));
-      const enter = smooth(ramp(cur.pr, 0.885, 0.94));
-      sealG.visible = enter > 0.01; heroG.visible = false;
-      const mobile = small.matches;
-      // world units per pixel at z=0: the camera sees 2*tan(19deg)*10 units over the viewport height
-      const upp = (2 * Math.tan(19 * Math.PI / 180) * 10) / innerHeight;
-      const px = mobile ? innerWidth - 84 : innerWidth - 8.25 * 16 - Math.min(innerWidth * 0.05, 88) - 12;   // centre of the requisition column
-      const py = mobile ? 132 : Math.min(innerHeight - 120, 4.6 * 16 + 470 + 165);                        // below the requisition; up in the corner on phones
-      sealG.position.set((px - innerWidth / 2) * upp, (innerHeight / 2 - py) * upp - (1 - settle) * 0.6, 0);
-      sealG.rotation.set(lerp(0.95, -0.38, settle) + ptr.y * 0.10 * settle, lerp(-0.8, 0.16, settle) + ptr.x * 0.14 * settle, lerp(0.35, 0.05, settle));
-      const sc = (mobile ? 0.5 : 0.8) * (0.7 + 0.3 * enter);
-      sealG.scale.setScalar(sc);
-      sealG.traverse((o) => { if (o.material) { o.material.transparent = enter < 0.999; o.material.opacity = enter; } });
-      sig += `:${enter.toFixed(2)}:${settle.toFixed(2)}`;
-      live.toggleAttribute('data-sc-verify-hold', settle >= 0.999);
+    retarget();
+    const k = INSTANT ? 1 : 1 - Math.pow(0.001, dt * 1.6);
+    for (const key of ['x', 'y', 's', 'rz', 'rx', 'open', 'lit', 'night']) cur[key] = lerp(cur[key], tgt[key], k);
+    ptr.x = lerp(ptr.x, ptr.tx, 0.05); ptr.y = lerp(ptr.y, ptr.ty, 0.05);
+    // twist: the scroll turns the helix, and time keeps it breathing between scrolls
+    const scrollTwist = (scrollTop() / Math.max(1, innerHeight)) * 0.9;
+    const idle = REDUCED ? 0 : time * 0.1;
+    const twist = scrollTwist + idle;
+    helix.position.set(cur.x + ptr.x * 0.35, cur.y + ptr.y * 0.25, 0);
+    helix.rotation.set(cur.rx + ptr.y * -0.12, ptr.x * 0.18, cur.rz);
+    helix.scale.setScalar(cur.s);
+    layout(twist, cur.open, cur.lit);
+    // day / night
+    const n = cur.night;
+    beadMat.color.copy(cBead.copy(BEAD_DAY).lerp(BEAD_NIGHT, n));
+    rungMat.color.copy(cRung.copy(RUNG_DAY).lerp(RUNG_NIGHT, n));
+    scene.environmentIntensity = lerp(1.0, 0.42, n);
+    key.intensity = lerp(1.7, 1.1, n); hemi.intensity = lerp(0.45, 0.12, n); rim.intensity = lerp(0.9, 1.4, n);
+    cDust.copy(DUST_DAY).lerp(DUST_NIGHT, n);
+    far.material.color.copy(cDust); near.material.color.copy(cDust);
+    far.material.opacity = lerp(0.28, 0.45, n); near.material.opacity = lerp(0.16, 0.3, n);
+    // particulate drift and pointer depth
+    for (const pts of [far, near]) {
+      const { base, ph, n: cnt } = pts.userData, arr = pts.geometry.attributes.position.array;
+      const amp = pts === near ? 0.5 : 0.25, sp = REDUCED ? 0 : 1;
+      for (let i = 0; i < cnt; i++) { arr[i * 3] = base[i * 3] + Math.sin(time * 0.12 * sp + ph[i]) * amp; arr[i * 3 + 1] = base[i * 3 + 1] + Math.cos(time * 0.09 * sp + ph[i] * 1.3) * amp * 0.7; }
+      pts.geometry.attributes.position.needsUpdate = true;
     }
-    live.setAttribute('data-sc-verify-state', `${sig}:${ptr.x.toFixed(2)},${ptr.y.toFixed(2)}`);
+    far.position.set(ptr.x * 0.4, ptr.y * 0.25, 0); near.position.set(ptr.x * 1.3, ptr.y * 0.9, 0);
     renderer.render(scene, camera);
-    raf = requestAnimationFrame(frame);
+    // what the verifier reads: only the scroll-driven part of the state, never time
+    const state = `${world.chapter}:${world.p.toFixed(2)}:${tgt.open.toFixed(2)}:${tgt.lit.toFixed(2)}:${tgt.night.toFixed(2)}:${scrollTwist.toFixed(2)}`;
+    if (state !== lastState) { lastState = state; stage.setAttribute('data-sc-verify-state', state); }
+    if (!REDUCED || world.dirty) { world.dirty = false; raf = requestAnimationFrame(frame); }
+    else raf = 0;
   }
-  function wake() { if (!raf && phase !== 'off' && !hidden) raf = requestAnimationFrame(frame); }
-  return {
-    update(tr) {
-      cur = tr;
-      const next = tr.pr < 0.135 ? 'hero' : tr.pr > 0.88 ? 'seal' : 'off';
-      if (next !== phase) { phase = next; live.classList.toggle('is-on', phase !== 'off'); if (phase === 'off') { live.setAttribute('data-sc-verify-state', 'off'); live.removeAttribute('data-sc-verify-hold'); } }
-      wake();
-    },
-  };
+  if (REDUCED) {
+    // Under reduced motion the loop only runs when something scroll-driven changed.
+    const poke = () => { world.dirty = true; wake(); };
+    addEventListener('scroll', poke, { passive: true });
+    const origSet = world.set; world.set = function (ch, p) { origSet.call(this, ch, p); wake(); };
+  }
+  if (AUTOMATED) {
+    let busy = false;
+    addEventListener('scroll', () => { if (busy) return; busy = true; try { ScrollTrigger.update(); if (raf) cancelAnimationFrame(raf); frame(performance.now()); } finally { busy = false; } }, { passive: true });
+  }
+  wake();
+  window.__world = { world, helix, scene, renderer };
 }
-
-// ------------------------------------------------------------------ scroll --
-let ticking = false;
-function onScroll() {
-  if (ticking) return; ticking = true;
-  requestAnimationFrame(() => {
-    ticking = false;
-    const tr = track();
-    updateReq(tr); updatePlates();
-    if (liveApi) liveApi.update(tr);
-  });
-}
-addEventListener('scroll', onScroll, { passive: true });
-addEventListener('resize', onScroll);
-addEventListener('sc:waypoint', onScroll);
-onScroll();
-// the engine writes the copy opacities on its own rAF; mirror them for a few frames after any scroll settles
-let settleTimer = 0;
-addEventListener('scroll', () => { clearTimeout(settleTimer); settleTimer = setTimeout(() => { let n = 0; const tick = () => { updatePlates(); if (++n < 40) requestAnimationFrame(tick); }; tick(); }, 60); }, { passive: true });

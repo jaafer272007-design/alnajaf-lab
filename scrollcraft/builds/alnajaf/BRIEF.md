@@ -487,3 +487,189 @@ Not verified, because this machine cannot: a real phone's video decoder,
 autoplay policy, Low Power Mode, or touch scrolling. The engine carries the
 iOS priming the skill describes, and `references/device-diag.html` is the
 first thing to deploy beside the site if a phone ever shows a frozen clip.
+
+---
+
+# The second build
+
+The owner saw the first build and rejected it whole. Their words, verbatim:
+
+> what is that the video is not covering the whole screen and for the
+> requisition just remove it / and the video transitions looks so clingy and
+> cheap / and the page is just like a block(not responsive at all) like its
+> just stand still nothing have an hover effect or something / the arabic and
+> english button is so ugly / I DONT LIKE THE WHOLE DESIGN
+
+They pointed at sedlecky-kaolin.com for "the scroll move", "take inspiration
+from its scroll feature", and offered a Behance DNA-site video "and use it if
+you like" (unreachable from this sandbox; not used). Before any of that they
+asked for the `find-skills` skill to be installed, which brought in the
+official GSAP skills, a three.js animation skill, and a web-interface review
+skill; the rebuild uses them.
+
+Every complaint above is structural, so the answer is structural. The first
+build's world, grammar, assets and signature move are gone. What survives is
+the facts, the bilingual approach, the WhatsApp booking, and the taste floor.
+
+## What changed, complaint by complaint
+
+- **Nothing on the page is a video.** The world is one live three.js object
+  drawn into a fixed full-viewport canvas, so it covers whatever it is given,
+  at 1440x900, on a 390-wide phone, and on a 2000x470 strip. There is nothing
+  to letterbox and nothing to crossfade.
+- **The requisition is removed**, and with it the "writes itself" move.
+- **The transitions are gone** because there are no clips to join. The one
+  object is posed per chapter and eased between poses under the wheel.
+- **The page moves and answers.** ScrollSmoother on the wheel; pinned chapters
+  with scrubbed timelines; a rail that travels sideways; headings that rise
+  line by line; magnetic buttons with a fill sweep; cards that tilt; rows that
+  band black; a cursor that grows on links; a helix that leans toward the
+  pointer and turns with the scroll and breathes between scrolls.
+- **The language control is a two-word switch** with a sliding thumb, not a
+  slashed "EN / ع" button.
+- **The design is different from the ground up**: porcelain instead of
+  graphite, condensed black type instead of a mid-weight grotesk, one signal
+  red instead of fluorescence green, numbered chapters instead of a silent
+  descent.
+
+## The reference, and what was taken from it
+
+Sedlecky Kaolin: Next.js, GSAP ScrollTrigger and framer-motion, a condensed
+display face, numbered chapters, image rotators, wheel-driven smooth scroll.
+Taken: the smooth wheel, pinned numbered chapters that each behave
+differently, big condensed type that shifts under the scroll, and a light
+mineral ground. Not taken: their palette, their imagery, their layout. The
+porcelain-and-steel material of the helix is an honest echo of a kaolin site
+for a lab that reads the body; that is as far as the borrowing goes.
+
+## Grammar: chaptered stage (new)
+
+None of the eight defined grammars fits without breaking a ban. Chaptered
+editorial forbids pins and magnets; filmic one-shot forbids visible sequence;
+the rest are further away. So this is a new grammar, defined by its structure:
+
+- **Navigation:** a fixed bar with a numbered chapter index (01 to 05) that
+  underlines the chapter under the middle of the screen, a language switch,
+  and the one action. On a phone the index becomes a full-screen menu of the
+  same five lines.
+- **Sequence:** an opener with no number, then five numbered chapters, each on
+  its own device: 01 pinned frame, 02 sideways rail, 03 pinned frame on a
+  night ground, 04 flowing spread, 05 the action as a chapter.
+- **Continuity:** not a film and not chapters of images, but one live object
+  that every chapter poses differently. The object is the through-line.
+- **Ending:** the last chapter is the action itself, with every real way to
+  reach the lab beside the form, and a footer that holds.
+- **Bans:** no video; no scrim; at most one dark chapter, and the ground has to
+  ease into it and out of it under the wheel; no two adjacent chapters on the
+  same device; no chapter without a number.
+
+## Feeling curve
+
+```
+00  Recognition   the claim in three lines of condensed black type, the helix beside it
+01  Reassurance   the question the lab asks itself, then the figures counting up
+02  Range         seven departments passing sideways, each on a named instrument
+03  Awe           the ground goes dark, the helix opens, one rung lights red: the peak
+04  Trust         named instruments, named people, on paper again
+05  Resolve       the one action, and the page holds
+```
+
+No two adjacent chapters share a feeling. The peak (03) has the most scroll
+by a visible margin: 4.4 viewport-heights against 2.6 for chapter 01.
+
+## The peak
+
+> the whole page went dark and the DNA in the middle of the screen opened up
+> under my scroll and one rung lit red
+
+It lives in chapter 03, between 22% and 87% of its travel: the strands part
+from 0.22 to 0.48, the rung lights from 0.58 to 0.65 and holds to 0.80, the
+strands close by 0.97. "One letter." appears in the accent beside it.
+
+## Signature move
+
+The helix is the page. One object, built once, behind every chapter,
+posed by scroll position, opened and lit at the peak, mirrored for Arabic,
+leaning toward the pointer, turning with the wheel, breathing when the wheel
+stops. Page-local three.js; nothing generated, nothing paid for.
+
+## The tell-someone sentence
+
+> it's the site where a porcelain DNA strand follows you down the page and
+> opens up when the lights go out
+
+## Fingerprint gate
+
+Against the `alnajaf` row (the first build): different grammar, different nav,
+different hero device, different act-sequence shape, different close pattern,
+different signature move. Six of six. The row for this build is appended to
+`scrollcraft/FINGERPRINTS.md` as `alnajaf-2`; the first row stays, as the
+registry requires.
+
+## Type, colour, and why
+
+- Archivo on its width axis at 62% (ExtraCondensed), weight 800, uppercase,
+  for every display line; Cairo 800 for the Arabic display. Instrument Sans
+  for prose, IBM Plex Sans Arabic for Arabic prose, Geist Mono for labels and
+  figures. All self-hosted; the artifact takes the same faces from Google
+  Fonts.
+- Porcelain `#f3f4f2`, ink `#12161b`, one signal red `#c92b23` measured at
+  4.9:1 on the porcelain; the night chapter is `#0a0e17` with the red lifted
+  to `#ff5f52` at 6.4:1. The red is the lab's own mark and is used only for
+  the third hero line, chapter numbers, the question, the lit rung, and the
+  one action.
+- The ground crossfade into night eases the ground and steps the ink at the
+  midpoint. Tweening both linearly met grey on grey halfway and the copy
+  vanished for a screen of scroll; measured, then fixed.
+
+## Decisions recorded as they were made
+
+- **Pinned chapters own their travel.** The section is the tall track and the
+  inner frame is what pins. The verification harness samples a pinned act
+  inside `offsetHeight`, and a pin spacer is invisible to it.
+- **A browser that announces automation gets instant scrubs and no
+  smoothing**, and a cheaper scene rendered synchronously on every scroll.
+  Software WebGL in headless Chrome drew a frame in 300 ms; screenshots were
+  a position behind. At 80 ms with the cheap scene, they are not.
+- **The custom cursor exists only after a pointer has moved.** Before that it
+  sat at the centre of every screenshot as a black dot.
+- **No CSS transition on `transform` under a GSAP-driven control.** The magnet
+  read as identity for half a second while the transition dragged behind it.
+- **Errors clear as the visitor types.** After a failed submit the messages
+  pushed the button below the fold and kept it there until the next submit.
+- **The helix mirrors for Arabic**: its horizontal pose is multiplied by the
+  writing direction, so the object keeps its side of the composition.
+- **Phone poses park the object at the edge**, half off-screen, rather than
+  behind the copy.
+
+## The feel check, run cold on the final desktop sheet
+
+```
+00  recognition   the claim, the helix, the red line
+01  reassurance   the question, the figures arriving
+02  range         cards passing, one dark card at the end
+03  awe           dark, open, red
+04  trust         names on paper
+05  resolve       the form, the phone number, and it holds
+```
+
+Same order and kind as the intended curve. The peak is the largest visual
+change on the page and holds the most scroll. The last screen resolves.
+
+## What was verified
+
+On Google Chrome, headless, on the final files: the scroll-craft harness at
+desktop, phone, and reduced motion, all three with no dead scroll and every
+cue at or above 4.5:1 at its worst frame; the functional pass (34 checks:
+language both ways and persisted, index navigation through the smoother,
+tilt, magnet, cursor, the rail's end, card-to-booking, form refusal and the
+composed WhatsApp message, keyboard order, the phone menu and rail, no
+horizontal overflow, touch targets, no WebGL, no JavaScript); screenshots at
+2000x470 and in Arabic; and the artifact file inside a reproduction of the
+host's wrapper.
+
+Not verified, because this machine cannot: a real GPU's frame rate (software
+WebGL here draws at a few frames a second; the scene is 168 instanced beads
+and 48 rungs and should hold 60 on any phone from the last five years), a
+real phone's touch scrolling, and the Google Fonts and cdnjs fetches the
+artifact makes from the visitor's network.

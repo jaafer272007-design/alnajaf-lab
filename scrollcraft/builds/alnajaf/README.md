@@ -1,69 +1,73 @@
 # Al-Najaf Specialized Laboratory: the site
 
-One continuous scroll-driven world, built with scroll-craft. Read `BRIEF.md`
-first: the story, the feeling curve, the peak, and every decision made along
-the way live there.
+Five numbered chapters on porcelain, one live object behind all of them. Read
+`BRIEF.md` first: the story, the feeling curve, the peak, and every decision
+made along the way live there, including why the first build was thrown away.
 
 ## Layout
 
 ```
-index.html        the page. Worldflight markup, bilingual copy, requisition, booking
-site.css          page styles over the scrollcraft floor
-app.js            page-local behaviour: language, requisition, plates, WhatsApp, live 3D layer
-scrollcraft.js    the engine, copied from the skill. Never edited per project.
-scrollcraft.css   the engine's stylesheet
-assets/           encoded clips (legN.mp4 desktop, legN-m.mp4 phone) and posters (pN.webp, pN-p.webp)
+index.html        the page: bilingual markup, five chapters, the booking form
+site.css          tokens, type, chapters, controls, hover states, breakpoints
+app.js            language, the scroll score (GSAP), pointer interactions, the world (three.js)
 fonts/            self-hosted woff2 and fonts.css
-vendor/           three.js module and RoomEnvironment for the live layer
-render/           the offline world renderer (see below)
+vendor/           gsap, ScrollTrigger, ScrollSmoother, SplitText, three.js
+render/           build and verification scripts (see below)
 lab/              verification output. Not tracked.
-out/              master renders. Not tracked.
 ```
 
-## Rendering the world
+There is no video and no image on the page. The object behind the chapters is
+rendered live: a double helix of porcelain beads on steel rungs, posed per
+chapter, opened and lit in the third. It costs nothing to generate and it
+covers whatever viewport it is given, because it is drawn into the viewport.
 
-Every clip is rendered locally, for free. `render/world.js` holds all seven
-scenes as deterministic functions of leg and time; `render/render.mjs` drives
-them in headless Chrome and writes frames, then ffmpeg assembles masters.
+## How it moves
 
-```bash
-node render/render.mjs --preview                 # five frames per leg, quick look
-node render/render.mjs --w 1920 --h 1080 --fps 25   # landscape masters -> out/
-node render/render.mjs --w 720 --h 1280 --fps 25    # portrait masters  -> out/
-node render/render.mjs --legs 0 ...              # a subset
-bash render/encode-all.sh                        # masters -> assets/, dense-GOP, posters from the encoded files
-```
-
-A full render of both orientations takes about an hour on four cores with
-software WebGL. The environment needs a full ffmpeg build and Google Chrome;
-`node ../../../.claude/skills/scroll-craft/scripts/doctor.mjs` checks both.
+- `ScrollSmoother` smooths the wheel; `ScrollTrigger` pins chapters 01 to 03
+  and scrubs their timelines; `SplitText` splits headings into masked lines.
+- Chapters 01 (lab) and 03 (method) are pinned frames inside tall sections; the
+  section is the track and the inner frame is what pins. Chapter 02 is a rail
+  that travels sideways under the wheel on desktop and under the thumb on a
+  phone.
+- The ground crossfades to night on the way into chapter 03 and back on the
+  way out. The ground eases; the ink flips at the midpoint, so the two never
+  meet grey on grey.
+- Everything hoverable answers: magnetic buttons with a fill sweep, tilting
+  cards, a black band on instrument rows, lifting consultant cards, sliding
+  arrows on contact rows, an index underline, a cursor that grows on links.
+- A browser that announces automation (`navigator.webdriver`) gets no smoothing
+  and instant scrubs, so every screenshot is the frame for its position.
+- Reduced motion: no smoother, instant scrubs, no idle spin, no reveals. No
+  WebGL: the stage hides and the page stands. No JavaScript: a plain document.
 
 ## Verifying
 
 ```bash
 node ../../../.claude/skills/scroll-craft/scripts/serve.mjs --root . --port 4700 &
-node ../../../.claude/skills/scroll-craft/scripts/worldflight-assert.mjs --url http://localhost:4700
-node ../../../.claude/skills/scroll-craft/scripts/shoot.mjs --url http://localhost:4700 --out lab/shots
-node ../../../.claude/skills/scroll-craft/scripts/shoot.mjs --url http://localhost:4700 --out lab/mobile --width 390 --height 844
-node ../../../.claude/skills/scroll-craft/scripts/shoot.mjs --url http://localhost:4700 --out lab/reduced --reduced-motion
+bash render/verify-all.sh                 # functional test, three harness passes, awkward sizes
+node render/functional.mjs                # controls, language, booking, fallbacks
+node render/look.mjs --w 2000 --h 470     # screenshots at any size; --lang ar, --reduced
 ```
 
-Run them on Google Chrome, never on Playwright's Chromium: it cannot decode
-H.264 and reports every clip as frozen. Then read the contact sheets.
+Run them on Google Chrome (the scripts do), not on Playwright's Chromium.
 
-## Deploying
+## Publishing
 
-The folder is a static site. Copy everything except `lab/`, `out/`, and
-`render/frames/` to any static host, at the root or any base path; every
-reference is relative. Nothing needs a server: the booking form composes a
-WhatsApp message and opens it, and the call and directions links are plain
-links.
+```bash
+node render/build-artifact.mjs            # -> render/artifact.html, one file, ~90 KB
+```
+
+The artifact loads GSAP and three.js from cdnjs and the type from Google Fonts;
+everything else is inlined. The folder itself is also a static site: copy
+everything except `lab/` and `render/` to any host.
 
 ## What still needs the owner
 
-- A vector or high-resolution logo. The header mark is a simplified drawing of
-  the crescent and helix from the 254-pixel original.
-- Photographs of the six doctors, the five named instruments, and the building.
-- A read of the Arabic story copy by a native speaker at the lab. The service
-  names and the mission line reuse the lab's own wording; the story lines are
-  mine.
+- A vector or high-resolution logo. The header mark is a simplified crescent.
+- Photographs of the six consultants, the five named instruments, and the
+  building, if they want faces and rooms on the page.
+- A native-speaker read of the Arabic copy. Service names reuse the lab's own
+  wording; the chapter copy is mine.
+- The example tests on each department card are the standard work of that
+  department's named instrument, not a list taken from the lab. Confirm or
+  replace them.
