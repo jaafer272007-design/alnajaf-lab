@@ -62,7 +62,7 @@ html[lang="en"] .lang__en, html[lang="ar"] .lang__ar { color: var(--sc-ink); }
 .sc-world__copy .copy--hero { inset-inline-start: var(--sc-gutter); bottom: 12svh; top: auto; }
 .sc-world__copy .copy--top { inset-inline-start: var(--sc-gutter); top: 18svh; bottom: auto; }
 .sc-world__copy .sc-copy--trail { inset-inline-end: var(--sc-gutter); bottom: 14svh; top: auto; text-align: end; max-width: min(40rem, 50vw); }
-.sc-world__copy .copy--peak { inset: 0; max-width: none; translate: none; display: grid; place-content: center; text-align: center; padding: 0 var(--sc-gutter); }
+.sc-world__copy .copy--peak { inset: auto 0 13svh 0; top: auto; max-width: none; translate: none; display: block; text-align: center; padding: 0 var(--sc-gutter); }
 .copy--peak .sc-display { max-width: 18ch; margin-inline: auto; }
 .copy--peak .sc-lede { color: var(--sc-accent); font-family: var(--sc-font-mono); letter-spacing: 0.06em; text-transform: uppercase; font-size: var(--sc-t-sm); margin-top: var(--sc-5); }
 .copy .sc-display { text-wrap: balance; }
@@ -79,7 +79,7 @@ html[lang="en"] .lang__en, html[lang="ar"] .lang__ar { color: var(--sc-ink); }
 .plate--lead { inset-inline-start: 0; bottom: 0; width: min(82vw, 70rem); height: 84svh; background: radial-gradient(ellipse 72% 64% at 20% 68%, color-mix(in oklab, var(--sc-canvas) 94%, transparent) 0%, color-mix(in oklab, var(--sc-canvas) 74%, transparent) 44%, transparent 76%); }
 .plate--top { inset-inline-start: 0; top: 0; width: min(78vw, 66rem); height: 74svh; background: radial-gradient(ellipse 70% 62% at 18% 30%, color-mix(in oklab, var(--sc-canvas) 90%, transparent) 0%, color-mix(in oklab, var(--sc-canvas) 66%, transparent) 42%, transparent 74%); }
 .plate--trail { inset-inline-end: 0; bottom: 0; width: min(78vw, 66rem); height: 74svh; background: radial-gradient(ellipse 70% 62% at 82% 70%, color-mix(in oklab, var(--sc-canvas) 90%, transparent) 0%, color-mix(in oklab, var(--sc-canvas) 66%, transparent) 42%, transparent 74%); }
-.plate--center { inset: 0; background: radial-gradient(ellipse 58% 52% at 50% 50%, color-mix(in oklab, var(--sc-canvas) 84%, transparent) 0%, color-mix(in oklab, var(--sc-canvas) 55%, transparent) 40%, transparent 72%); }
+.plate--band { inset-inline: 0; bottom: 0; height: 64svh; background: linear-gradient(to top, color-mix(in oklab, var(--sc-canvas) 94%, transparent) 0%, color-mix(in oklab, var(--sc-canvas) 86%, transparent) 40%, color-mix(in oklab, var(--sc-canvas) 40%, transparent) 72%, transparent 100%); }
 .plate--finale { inset: 0; background: linear-gradient(to right, color-mix(in oklab, var(--sc-canvas) 92%, transparent) 0%, color-mix(in oklab, var(--sc-canvas) 80%, transparent) 44%, color-mix(in oklab, var(--sc-canvas) 40%, transparent) 68%, transparent 100%); }
 html[dir="rtl"] .plate--top { background: radial-gradient(ellipse 70% 62% at 82% 30%, color-mix(in oklab, var(--sc-canvas) 90%, transparent) 0%, color-mix(in oklab, var(--sc-canvas) 66%, transparent) 42%, transparent 74%); }
 html[dir="rtl"] .plate--lead { background: radial-gradient(ellipse 70% 62% at 82% 70%, color-mix(in oklab, var(--sc-canvas) 90%, transparent) 0%, color-mix(in oklab, var(--sc-canvas) 66%, transparent) 42%, transparent 74%); }
@@ -155,7 +155,8 @@ html[dir="rtl"] .field select { background-position: 1.2rem 55%, 0.85rem 55%; pa
   .bar__name { display: none; }
   .sc-world__copy .copy { max-width: none; inset-inline: var(--sc-gutter); }
   .sc-world__copy .copy--hero { top: auto; bottom: calc(15svh + 3.4rem); }
-  .sc-world__copy .copy--peak, .sc-world__copy .copy--finale { inset: 0; }
+  .sc-world__copy .copy--finale { inset: 0; }
+  .sc-world__copy .copy--peak { bottom: calc(12svh + 3.6rem); }
   .copy--hero .sc-display--xl { font-size: var(--sc-t-2xl); }
   .sc-world__copy .sc-copy--lead:not(.copy--hero):not(.copy--finale) { top: 16svh; }
   .sc-world__copy .sc-copy--trail { bottom: calc(12svh + 3.4rem); top: auto; text-align: start; }

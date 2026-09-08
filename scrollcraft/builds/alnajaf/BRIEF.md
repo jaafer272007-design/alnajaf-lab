@@ -319,7 +319,7 @@ No WebGL: the live canvas is hidden and posters carry the composition.
 ## Build decisions, recorded as they were made
 
 **Copy anchors, desktop.** Hero bottom-left. Plasma top-left. Crowd
-bottom-right. Peak centred, held to 18 characters wide. Reading top-left.
+bottom-right. Peak centred in a bottom band. Reading top-left.
 Finale a three-column composition: copy, booking form, requisition with the
 seal beneath it. Four anchors across the page, never the same one twice in a
 row.
@@ -377,3 +377,18 @@ assertion script reads it there.
 as woff2 under `fonts/`. Chrome's requests to Google Fonts were reset from this
 sandbox, and a visitor in Najaf should not depend on a third party for the type
 either.
+
+**The peak's copy sits in a bottom band, not on the glow.** Centred over the
+lit base pair it measured 1.03:1 on the phone, because the line sat directly on
+the bloom. Moving it into the lower third with a band plate keeps the letter
+clear above the words and passes at every frame. This is the one centred block
+on the page, and the band is the one place the copy is centred on.
+
+**The harness's frozen-clip detector misreads worldflight.** On a real run it
+reports every leg as "held on its last frame while the stage slides out" and
+"held mid-clip at 0.05s" before its turn. The report's playhead data shows each
+clip advancing through exactly its own leg and parking otherwise, and the
+engine hides a parked leg at opacity 0 with `visibility: hidden`. The detector
+treats a fixed full-screen leg as visible whatever its opacity. Those lines are
+noise here; dead scroll, poster-stuck, opacity, and contrast are the checks
+that mean something on this page.
