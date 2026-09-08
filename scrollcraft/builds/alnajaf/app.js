@@ -130,7 +130,9 @@ let liveApi = null;
 function webglOk() { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; } }
 const saveData = navigator.connection && navigator.connection.saveData;
 if (!reduce && !saveData && webglOk()) {
-  Promise.all([import('./vendor/three.module.min.js'), import('./vendor/RoomEnvironment.js')]).then(([THREE, { RoomEnvironment }]) => { liveApi = buildLive(THREE, RoomEnvironment); onScroll(); }).catch((err) => { console.warn('[live] not started:', err && err.message); });
+  // after the hero clip has had first claim on the connection
+  const start = () => Promise.all([import('./vendor/three.module.min.js'), import('./vendor/RoomEnvironment.js')]).then(([THREE, { RoomEnvironment }]) => { liveApi = buildLive(THREE, RoomEnvironment); onScroll(); }).catch((err) => { console.warn('[live] not started:', err && err.message); });
+  if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2500 }); else setTimeout(start, 900);
 }
 
 function buildLive(THREE, RoomEnvironment) {
