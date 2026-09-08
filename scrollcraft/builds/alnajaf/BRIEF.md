@@ -423,3 +423,67 @@ on a preview frame with the rectangle drawn on it before rendering. The
 lesson is that a poster is a composition, not a frame that happens to be
 first: under reduced motion it is held for the whole leg under copy at full
 opacity, so it has to be composed for that copy like any still.
+
+---
+
+## The feel check, run cold on the final desktop sheet
+
+One word per leg, written before rereading the curve above:
+
+```
+1  recognition   the tube, the drop, the push into the blood
+2  curiosity     cells the size of planets drifting past
+3  unease        the crowd, the white cell, "which one"
+4  held breath   the wall passes over the lens, then nothing
+5  awe           the helix out of the dark, one rung lit green
+6  confidence    the curve rising, the instruments named
+7  calm          the paper, the seal, the form, and it holds
+```
+
+Diffed against the intended curve: identical in order and in kind. That is
+suspicious on a first pass by the skill's own rule, so the three specific
+checks were done on the sheet rather than assumed. The peak is the largest
+visual change on the page, dark to lit, and it holds the most scroll room by a
+visible margin. The two rows in front of it are the quietest on the page. The
+last three sampled frames are the same resolved screen with content on it.
+
+What changed because of the check: nothing in the curve, but the reading leg
+was rebuilt three times for contrast before this pass could be called clean,
+and each of those rounds is recorded above.
+
+## Seam joins, measured on the encoded files
+
+Last frame of each leg against the first frame of the next, PSNR:
+
+```
+leg0 -> leg1   16.3 dB   inside the blood, dark red, to plasma in dark amber
+leg1 -> leg2   24.1 dB   continuous plasma, density and speed climb
+leg2 -> leg3   17.5 dB   the cell wall filling the frame, both sides
+leg3 -> leg4   28.0 dB   dark to dark
+leg4 -> leg5    7.9 dB   the lit rung close, to a small light in the dark
+leg5 -> leg6   10.1 dB   the flow cell's light, to the paper lit by it
+```
+
+These are not chained joins and were never meant to be frame-identical. Each
+was composed so both sides are low-detail and the one-sided crossfade over
+0.16vh has nothing to hide, and the harness's seam samples and the contact
+sheets show no flash at any of them. The two lowest are cuts of light: the
+letter's glow continuing as a point, and the flow cell's light landing on the
+report. If a future owner wants these to read as one unbroken take, the honest
+route is a connector leg on each, per worldflight.md Architecture B, not a
+heavier dissolve.
+
+## What was verified, and what was not
+
+Verified with Google Chrome headless on the final files: desktop, phone, and
+reduced-motion passes with no dead scroll, every leg painting, every line at
+or above 4.5:1 at its worst frame; the worldflight assertions except the one
+boundary case recorded above; keyboard order; the page with WebGL disabled;
+the page with JavaScript disabled; the booking form's validation and its
+WhatsApp composition; the language toggle both ways; the requisition filling
+all seven lines and its chosen test carrying into the form.
+
+Not verified, because this machine cannot: a real phone's video decoder,
+autoplay policy, Low Power Mode, or touch scrolling. The engine carries the
+iOS priming the skill describes, and `references/device-diag.html` is the
+first thing to deploy beside the site if a phone ever shows a frozen clip.
