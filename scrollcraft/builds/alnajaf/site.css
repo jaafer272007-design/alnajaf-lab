@@ -72,6 +72,7 @@ html[lang="en"] .lang__en, html[lang="ar"] .lang__ar { color: var(--sc-ink); }
 .instruments { list-style: none; margin: var(--sc-4) 0 0; padding: 0; display: grid; gap: 0.35rem; font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); letter-spacing: 0.04em; color: var(--sc-ink); }
 .instruments li::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--sc-accent); margin-inline-end: 0.7em; vertical-align: middle; }
 .copy--reading .sc-lede { margin-top: var(--sc-5); }
+.sc-world__copy .copy--reading { max-width: min(40rem, 50vw); }
 
 /* Scrim plates. Siblings of the copy, so the contrast pass measures them. Each mirrors its block's opacity. */
 .plates { position: absolute; inset: 0; pointer-events: none; }

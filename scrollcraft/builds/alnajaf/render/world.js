@@ -455,9 +455,9 @@ class LegReading extends Leg {
     this.cell.instanceColor.needsUpdate = true;
     // camera: start close on the first curve's rise (green bloom), pull back to reveal the plot, then swing to the flow cell
     const pull = smooth(ramp(t, 0.0, 0.45)); const swing = smooth(ramp(t, 0.5, 1.0));
-    const posA = PORTRAIT ? V3(-4.2, 0.2, 11.5) : V3(-6.2, 0.6, 10.5), posB = V3(0, 1.5, 22), posC = V3(0, 0.5, -8);
+    const posA = PORTRAIT ? V3(-4.2, 0.2, 11.5) : V3(-6.2, 0.6, 10.5), posB = PORTRAIT ? V3(0, 1.5, 22) : V3(-9, 1.5, 22), posC = V3(0, 0.5, -8);
     const pos = posA.clone().lerp(posB, pull).lerp(posC, swing);
-    const tgtA = PORTRAIT ? V3(-6.0, 0.6, 0) : V3(-8.4, 0.9, 0), tgtB = V3(0, 0, 0), tgtC = V3(0, 0, -30);
+    const tgtA = PORTRAIT ? V3(-6.0, 0.6, 0) : V3(-8.4, 0.9, 0), tgtB = PORTRAIT ? V3(0, 0, 0) : V3(-9, 0, 0), tgtC = V3(0, 0, -30);
     this.bloom.strength = lerp(0.62, 0.45, pull);
     const gf = 1 - smooth(ramp(t, 0.0, 0.26)); this.glowBall.scale.setScalar(lerp(0.12, 1.1, gf)); this.glowBall.material.opacity = gf * 0.55; this.glowBall.visible = gf > 0.01;
     const tgt = tgtA.clone().lerp(tgtB, pull).lerp(tgtC, swing);
