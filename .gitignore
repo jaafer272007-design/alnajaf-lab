@@ -3,17 +3,24 @@
 .env.local
 *.key
 
-# scroll-craft build output. A single build with video legs runs to hundreds of
-# megabytes, and committing it once puts it in history permanently. The
-# FINGERPRINTS.md registry is tracked on purpose: the uniqueness gate only
+# scroll-craft build output. Rendered frame sequences, master renders, and
+# verification shots run to hundreds of megabytes; committing them once puts
+# them in history permanently. The finished site (markup, engine, encoded
+# clips, posters, fonts) IS tracked, because it is the deliverable.
+# The FINGERPRINTS.md registry is tracked on purpose: the uniqueness gate only
 # works if it persists across sessions.
-scrollcraft/builds/
+scrollcraft/builds/*/lab/
+scrollcraft/builds/*/out/
+scrollcraft/builds/*/render/frames/
+scrollcraft/builds/*/render/preview/
+scrollcraft/builds/*/render/*.log
 lab/
 out/
 dist/
 *.mp4
 *.mov
 *.webm
+!scrollcraft/builds/*/assets/*.mp4
 
 # Node
 node_modules/

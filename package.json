@@ -1,0 +1,9 @@
+{
+  "name": "alnajaf-lab",
+  "private": true,
+  "description": "Claude Code skill inventory and the Al-Najaf Specialized Laboratory site build.",
+  "devDependencies": {
+    "playwright-core": "^1.58.0",
+    "three": "0.185.1"
+  }
+}

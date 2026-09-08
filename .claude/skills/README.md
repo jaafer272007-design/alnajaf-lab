@@ -65,7 +65,7 @@ every session, so this runs once per session:
 apt-get update -qq && apt-get install -y -qq ffmpeg          # required check
 curl -sSLo /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 apt-get install -y -qq /tmp/chrome.deb                        # see the codec note below
-npm install --no-save --no-package-lock playwright-core       # at the repo root
+npm install                                                   # playwright-core and three, pinned in package.json
 ```
 
 Why each one:
