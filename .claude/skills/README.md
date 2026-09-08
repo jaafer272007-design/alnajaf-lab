@@ -7,6 +7,54 @@ session opened on this repository. One directory per skill, each holding a
 | Skill | Source | Licence | Vendored at |
 |---|---|---|---|
 | [scroll-craft](scroll-craft/SKILL.md) | [nateherkai/scroll-craft](https://github.com/nateherkai/scroll-craft) | MIT | `0b81622`, 2026-09-04 |
+| [find-skills](find-skills/SKILL.md) | [vercel-labs/skills](https://github.com/vercel-labs/skills/tree/main/skills/find-skills) | MIT | `80feb48`, 2026-09-08 |
+| [gsap-core](gsap-core/SKILL.md) | [greensock/gsap-skills](https://github.com/greensock/gsap-skills) | MIT | via `npx skills add`, 2026-09-08 |
+| [gsap-scrolltrigger](gsap-scrolltrigger/SKILL.md) | [greensock/gsap-skills](https://github.com/greensock/gsap-skills) | MIT | via `npx skills add`, 2026-09-08 |
+| [gsap-plugins](gsap-plugins/SKILL.md) | [greensock/gsap-skills](https://github.com/greensock/gsap-skills) | MIT | via `npx skills add`, 2026-09-08 |
+| [threejs-animation](threejs-animation/SKILL.md) | [cloudai-x/threejs-skills](https://github.com/cloudai-x/threejs-skills) | MIT | via `npx skills add`, 2026-09-08 |
+| [web-design-guidelines](web-design-guidelines/SKILL.md) | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | MIT | via `npx skills add`, 2026-09-08 |
+
+Two install mechanisms are in use, and they look different on disk:
+
+- **Vendored copies** (`scroll-craft`, `find-skills`) are real directories,
+  copied from the upstream repository at the commit in the table.
+- **Registry installs** (everything else) were added with the `find-skills`
+  workflow: `npx skills add <owner/repo@skill> -y`. The CLI writes the files to
+  `.agents/skills/<name>/` at the repo root and leaves a symlink here, so the
+  same install is visible to every agent that reads `.agents/`. `skills-lock.json`
+  at the repo root records the source and content hash of each one; keep it
+  tracked so a fresh clone can audit or re-sync with `npx skills check`.
+
+## find-skills
+
+Discovers and installs skills from the open registry at skills.sh. Use it when
+you want a capability that probably already exists as a skill: run
+`npx skills find <query>`, judge the results by install count and source, then
+`npx skills add <owner/repo@skill> -y`. The quality bar it recommends is a
+thousand or more installs from a reputable owner. Vendored byte for byte from
+`skills/find-skills/` in the upstream repo, with the MIT licence alongside.
+
+## gsap-core, gsap-scrolltrigger, gsap-plugins
+
+GreenSock's official skills for GSAP 3: tweens, timelines, and easing in
+`gsap-core`; scroll-linked animation, pinning, and scrubbing in
+`gsap-scrolltrigger`; ScrollSmoother, ScrollTo, and the rest of the plugin set
+in `gsap-plugins`. GSAP is free for all uses since 2025, including the formerly
+paid plugins. Reach for these whenever a page needs scroll-driven motion that
+is not a video scrub: pinned chapters, smooth scrolling, staggered reveals.
+
+## threejs-animation
+
+Animation patterns for three.js: clock-driven loops, mixers, and how to tie a
+scene's state to an external progress value. Pairs with `gsap-scrolltrigger`
+when a live WebGL scene is driven by scroll instead of by time.
+
+## web-design-guidelines
+
+Vercel's checklist for reviewing a page against web interface guidelines:
+focus states, hover affordances, reduced-motion, touch targets, contrast,
+and layout at awkward viewport sizes. Run it as a review pass over a finished
+page rather than as a build guide.
 
 ## scroll-craft
 
