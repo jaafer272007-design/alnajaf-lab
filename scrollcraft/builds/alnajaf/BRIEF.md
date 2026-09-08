@@ -392,3 +392,22 @@ engine hides a parked leg at opacity 0 with `visibility: hidden`. The detector
 treats a fixed full-screen leg as visible whatever its opacity. Those lines are
 noise here; dead scroll, poster-stuck, opacity, and contrast are the checks
 that mean something on this page.
+
+**Leg 5 opened on its own brightest frame.** The reading leg began inside a
+full-frame green glow. That frame is also its poster, and under reduced motion
+the poster is what holds for the whole leg, so the instruments copy sat on a
+wall of light at 2.26:1. Heavier scrim was the wrong fix: taste.md is explicit
+that a scrim tuned by eye throws away the photograph. The glow is now a small
+point rather than a wash, the camera opens further back on the plot in the
+dark, and the leg's peak bloom is halved. The measured version of this is the
+whole argument for running the reduced-motion pass at all: the motion build
+had already passed.
+
+**One assertion fails and is not a page defect.** `worldflight-assert` reports
+"outgoing leg only releases once it is fully covered". The engine releases the
+outgoing leg at exactly `c1 + S/2`, the last instant of the seam band, and the
+assertion's final sample sits a hair inside that boundary where the leg is
+still correctly at full opacity. Its siblings all pass: the incoming leg is
+strictly monotone 0 to 1, the outgoing holds full strength underneath
+throughout, and no contact sheet shows a flash at any join. Fixing it would
+mean editing the shared engine, which the skill forbids per project.

@@ -14,6 +14,8 @@ scrollcraft/builds/*/out/
 scrollcraft/builds/*/render/frames/
 scrollcraft/builds/*/render/preview/
 scrollcraft/builds/*/render/*.log
+scrollcraft/builds/*/preview-assets/
+scrollcraft/builds/*/render/artifact.html
 lab/
 out/
 dist/

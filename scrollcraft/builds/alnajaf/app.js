@@ -129,13 +129,36 @@ const canvas = document.getElementById('liveCanvas');
 let liveApi = null;
 function webglOk() { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; } }
 const saveData = navigator.connection && navigator.connection.saveData;
+const THREE_URL = './vendor/three.module.min.js';
 if (!reduce && !saveData && webglOk()) {
   // after the hero clip has had first claim on the connection
-  const start = () => Promise.all([import('./vendor/three.module.min.js'), import('./vendor/RoomEnvironment.js')]).then(([THREE, { RoomEnvironment }]) => { liveApi = buildLive(THREE, RoomEnvironment); onScroll(); }).catch((err) => { console.warn('[live] not started:', err && err.message); });
+  const start = () => import(THREE_URL).then((THREE) => { liveApi = buildLive(THREE); onScroll(); }).catch((err) => { console.warn('[live] not started:', err && err.message); });
   if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2500 }); else setTimeout(start, 900);
 }
 
-function buildLive(THREE, RoomEnvironment) {
+// A small equirectangular sky, PMREM-filtered. Cheaper than an imported room and
+// it removes the last dependency beyond three.js itself.
+function skyEnvironment(THREE, renderer) {
+  const c = document.createElement('canvas'); c.width = 128; c.height = 64;
+  const g = c.getContext('2d');
+  const grd = g.createLinearGradient(0, 0, 0, 64);
+  grd.addColorStop(0, '#e6eefb'); grd.addColorStop(0.45, '#79828f'); grd.addColorStop(1, '#0c0f13');
+  g.fillStyle = grd; g.fillRect(0, 0, 128, 64);
+  const key = g.createRadialGradient(30, 14, 0, 30, 14, 26);
+  key.addColorStop(0, 'rgba(255,255,255,0.95)'); key.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = key; g.fillRect(0, 0, 128, 64);
+  const warm = g.createRadialGradient(98, 46, 0, 98, 46, 30);
+  warm.addColorStop(0, 'rgba(255,176,120,0.5)'); warm.addColorStop(1, 'rgba(255,176,120,0)');
+  g.fillStyle = warm; g.fillRect(0, 0, 128, 64);
+  const tex = new THREE.CanvasTexture(c);
+  tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace;
+  const pm = new THREE.PMREMGenerator(renderer);
+  const env = pm.fromEquirectangular(tex).texture;
+  pm.dispose(); tex.dispose();
+  return env;
+}
+
+function buildLive(THREE) {
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
   renderer.setClearColor(0x000000, 0);
@@ -143,7 +166,7 @@ function buildLive(THREE, RoomEnvironment) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100); camera.position.set(0, 0, 10);
-  const pmrem = new THREE.PMREMGenerator(renderer); scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.55;
+  scene.environment = skyEnvironment(THREE, renderer); scene.environmentIntensity = 0.55;
   const key = new THREE.DirectionalLight(0xcfe3ff, 2.6); key.position.set(-4, 6, 5); scene.add(key);
   const fill = new THREE.PointLight(0xffb27a, 1.1, 0, 1.6); fill.position.set(4, -3, 4); scene.add(fill);
 

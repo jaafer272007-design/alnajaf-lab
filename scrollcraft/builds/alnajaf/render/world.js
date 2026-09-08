@@ -455,11 +455,11 @@ class LegReading extends Leg {
     this.cell.instanceColor.needsUpdate = true;
     // camera: start close on the first curve's rise (green bloom), pull back to reveal the plot, then swing to the flow cell
     const pull = smooth(ramp(t, 0.0, 0.45)); const swing = smooth(ramp(t, 0.5, 1.0));
-    const posA = V3(-4.9, -1.6, 0.9), posB = V3(0, 1.5, 22), posC = V3(0, 0.5, -8);
+    const posA = V3(-3.6, -0.6, 10.5), posB = V3(0, 1.5, 22), posC = V3(0, 0.5, -8);
     const pos = posA.clone().lerp(posB, pull).lerp(posC, swing);
     const tgtA = V3(-5.4, -1.9, 0), tgtB = V3(0, 0, 0), tgtC = V3(0, 0, -30);
-    this.bloom.strength = lerp(1.05, 0.45, pull);
-    const gf = 1 - smooth(ramp(t, 0.0, 0.22)); this.glowBall.scale.setScalar(lerp(0.15, 2.2, gf)); this.glowBall.material.opacity = gf * 0.42; this.glowBall.visible = gf > 0.01;
+    this.bloom.strength = lerp(0.62, 0.45, pull);
+    const gf = 1 - smooth(ramp(t, 0.0, 0.26)); this.glowBall.scale.setScalar(lerp(0.12, 1.1, gf)); this.glowBall.material.opacity = gf * 0.55; this.glowBall.visible = gf > 0.01;
     const tgt = tgtA.clone().lerp(tgtB, pull).lerp(tgtC, swing);
     lookAtTarget(this.camera, pos, tgt, lerp(0.05, 0, pull));
     this.camera.fov = lerp(30, 44, pull); this.camera.updateProjectionMatrix();

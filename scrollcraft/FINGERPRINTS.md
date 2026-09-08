@@ -28,9 +28,7 @@ changes only grammar and world will fail it.
 
 | Build | Grammar | Nav treatment | Hero device | Act-sequence shape | Close pattern | Signature move | World | Port |
 |---|---|---|---|---|---|---|---|---|
-
-*(empty: your first build has nothing to clear, so build whatever the interview
-points at. From the second onwards, this table is the constraint.)*
+| alnajaf | continuous world (worldflight) | requisition panel, no sections, no section nav | worldflight leg 1: rendered macro clip + live particulate + pointer depth | 7 legs, one pace at 0.217vh/s, peak at leg 5 with 2x the weight | the flight lands on a signed report, a rendered seal settles into it, the booking form holds | the requisition writes itself during the descent and becomes the WhatsApp booking, carrying the chosen test | rendered scientific macro, low-key, one fluorescence-green accent | 4700 |
 
 ---
 
@@ -41,7 +39,16 @@ reusing: a grammar, a nav treatment, a close pattern, a signature move, an
 act-count-and-length band. The shared columns are what the next build inherits
 as a constraint, so writing them down is the whole point.
 
-Nothing is taken yet.
+- **Continuous world / worldflight** is taken by `alnajaf`. A second build wanting
+  one unbroken camera has to differ on four of the remaining five dimensions.
+- **A panel that fills as you descend and becomes the conversion** is taken. A
+  progress rail that only reports position is a different thing and is still free.
+- **Ending on a document the visitor is given** is taken.
+- **7 legs at 9.75vh total**, one held pace. The 6-to-7 act band at 13.6-13.8vh
+  that the author's earlier builds hit was avoided; this one sits at 10.75vh of
+  track including the landing viewport.
+- **Fluorescence green on graphite** as the single accent, earned by being the
+  colour a PCR instrument reads a result in. Another lab brand needs its own.
 
 ---
 
