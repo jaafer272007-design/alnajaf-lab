@@ -411,7 +411,7 @@ class LegHelix extends Leg {
 // ================================================================ LEG 6 ==
 // The reading. Amplification curves rise; a flow cell lights cluster by cluster.
 class LegReading extends Leg {
-  constructor() { super('reading', 6); this.bloom = { strength: 0.75, radius: 0.7, threshold: 0.6 }; }
+  constructor() { super('reading', 6); this.bloom = { strength: 0.45, radius: 0.7, threshold: 0.7 }; }
   build() {
     const s = this.scene; const rng = mulberry32(66);
     s.background = new THREE.Color(0x06090b); s.fog = new THREE.FogExp2(0x06090b, 0.05); s.environment = envTex; s.environmentIntensity = 0.2;
@@ -451,15 +451,15 @@ class LegReading extends Leg {
     });
     // flow cell lights from t=0.4 to 0.95, left to right with jitter
     const lit = ramp(t, 0.38, 0.95);
-    for (let i = 0; i < this.N; i++) { const on = smooth(ramp(lit, this.order[i] - 0.08, this.order[i] + 0.04)); this.col.setRGB(lerp(0.04, 0.38, on), lerp(0.08, 0.94, on), lerp(0.07, 0.69, on)); this.cell.setColorAt(i, this.col); }
+    for (let i = 0; i < this.N; i++) { const on = smooth(ramp(lit, this.order[i] - 0.08, this.order[i] + 0.04)); this.col.setRGB(lerp(0.03, 0.16, on), lerp(0.06, 0.52, on), lerp(0.05, 0.38, on)); this.cell.setColorAt(i, this.col); }
     this.cell.instanceColor.needsUpdate = true;
     // camera: start close on the first curve's rise (green bloom), pull back to reveal the plot, then swing to the flow cell
     const pull = smooth(ramp(t, 0.0, 0.45)); const swing = smooth(ramp(t, 0.5, 1.0));
     const posA = V3(-4.9, -1.6, 0.9), posB = V3(0, 1.5, 22), posC = V3(0, 0.5, -8);
     const pos = posA.clone().lerp(posB, pull).lerp(posC, swing);
     const tgtA = V3(-5.4, -1.9, 0), tgtB = V3(0, 0, 0), tgtC = V3(0, 0, -30);
-    this.bloom.strength = lerp(1.6, 0.75, pull);
-    const gf = 1 - smooth(ramp(t, 0.0, 0.22)); this.glowBall.scale.setScalar(lerp(0.15, 2.6, gf)); this.glowBall.material.opacity = gf * 0.6; this.glowBall.visible = gf > 0.01;
+    this.bloom.strength = lerp(1.05, 0.45, pull);
+    const gf = 1 - smooth(ramp(t, 0.0, 0.22)); this.glowBall.scale.setScalar(lerp(0.15, 2.2, gf)); this.glowBall.material.opacity = gf * 0.42; this.glowBall.visible = gf > 0.01;
     const tgt = tgtA.clone().lerp(tgtB, pull).lerp(tgtC, swing);
     lookAtTarget(this.camera, pos, tgt, lerp(0.05, 0, pull));
     this.camera.fov = lerp(30, 44, pull); this.camera.updateProjectionMatrix();
@@ -478,7 +478,7 @@ class LegReport extends Leg {
     const desk = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshStandardMaterial({ color: 0x0d1013, roughness: 0.9 })); desk.rotation.x = -Math.PI / 2; s.add(desk);
     // paper: off-white, faint rules and blocks, no words
     const c = document.createElement('canvas'); c.width = 1240; c.height = 1754; const g = c.getContext('2d');
-    g.fillStyle = '#f1efe9'; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = '#d8d4cb'; g.fillRect(0, 0, c.width, c.height);
     g.fillStyle = '#d9d5cc';
     g.fillRect(120, 150, 420, 16); g.fillRect(120, 190, 300, 10);
     for (let i = 0; i < 18; i++) { g.fillRect(120, 330 + i * 58, 620 + (i % 4) * 90, 6); g.fillRect(860, 330 + i * 58, 220, 6); }
@@ -487,7 +487,7 @@ class LegReport extends Leg {
     g.strokeStyle = '#d2cec5'; g.lineWidth = 3; g.beginPath(); g.arc(940, 1560, 120, 0, 6.29); g.stroke();
     const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
     const px = PORTRAIT ? 0 : 3.6, pz = PORTRAIT ? 3.2 : 0.4;
-    this.paper = new THREE.Mesh(new THREE.PlaneGeometry(8.27, 11.69), new THREE.MeshStandardMaterial({ map: tex, color: 0xe6e2da, roughness: 0.88, metalness: 0 }));
+    this.paper = new THREE.Mesh(new THREE.PlaneGeometry(8.27, 11.69), new THREE.MeshStandardMaterial({ map: tex, color: 0xb9b5ad, roughness: 0.9, metalness: 0 }));
     this.paper.rotation.x = -Math.PI / 2; this.paper.rotation.z = 0.06; this.paper.position.set(px, 0.01, pz); s.add(this.paper);
     const p2 = new THREE.Mesh(new THREE.PlaneGeometry(8.27, 11.69), new THREE.MeshStandardMaterial({ color: 0xd9d5cc, roughness: 0.9 })); p2.rotation.x = -Math.PI / 2; p2.rotation.z = -0.03; p2.position.set(px + 0.35, 0.0, pz + 0.25); s.add(p2);
     this.px = px; this.pz = pz;
@@ -504,7 +504,7 @@ class LegReport extends Leg {
     const k = smooth(ramp(t, 0, 0.85));
     this.spill.position.set(this.px, 3, this.pz);
     this.spill.intensity = lerp(26, 0, smooth(ramp(t, 0, 0.45)));
-    this.lights.key.intensity = lerp(1.5, 5.5, k);
+    this.lights.key.intensity = lerp(1.2, 3.8, k);
     const px = this.px, pz = this.pz;
     const pos = (PORTRAIT ? V3(px + 0.4, 15.5, pz + 4.5) : V3(px - 1.6, 14.5, pz + 6)).clone().lerp(PORTRAIT ? V3(px + 0.2, 10.5, pz + 1.0) : V3(px - 3.4, 8.6, pz + 3.2), k);
     const tgt = V3(px, 0, pz).lerp(V3(px - 1.4, 0, pz - 0.4), k);
