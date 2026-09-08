@@ -58,18 +58,38 @@ Run the preflight before a build, rather than checking by hand:
 node .claude/skills/scroll-craft/scripts/doctor.mjs
 ```
 
-In a Claude Code cloud session the state is:
+A Claude Code cloud session starts with two of its checks failing. The container
+is rebuilt for every session, so this runs once per session:
 
-- **node** is present.
-- **Chromium** is present but not where the preflight looks. Point it there with
-  `export SCROLLCRAFT_CHROME=/opt/pw-browsers/chromium`, and the check passes.
-- **ffmpeg** is missing, and this is the one required check. The build under
-  `/opt/pw-browsers/` is Playwright's stripped copy: it has no webp muxer and is
-  missing filters the encode step needs, so pointing `SCROLLCRAFT_FFMPEG` at it
-  produces failures that read as syntax errors in your own command. Install a
-  full build instead. Only the asset pipeline needs it, so a page built from
-  supplied photography can skip it.
-- **playwright-core** installs per build folder, with `npm i playwright-core`.
-  Only the verification pass needs it.
-- **KIE_AI_API_KEY** is unset. Only asset generation needs it. Building from
-  supplied photos and footage is a first-class route that costs nothing.
+```bash
+apt-get update -qq && apt-get install -y -qq ffmpeg   # the one required check
+ln -sfn /opt/pw-browsers/chromium /usr/bin/chromium   # a path the preflight looks in
+npm install --no-save --no-package-lock playwright-core   # at the repo root
+```
+
+Why each one:
+
+- **ffmpeg** is absent, and it is the only required check. Do not point
+  `SCROLLCRAFT_FFMPEG` at the build under `/opt/pw-browsers/`: that is
+  Playwright's stripped copy, with no webp muxer and missing filters, and it
+  fails as misleading syntax errors in your own commands. Ubuntu's package is a
+  full build, verified here at 563 filters with libwebp present.
+- **Chromium** is installed but outside the paths the preflight and the
+  screenshot harness search. Both read the same list, so a symlink onto
+  `/usr/bin/chromium` satisfies them without any environment variable.
+- **playwright-core** resolves from the current directory upward, so installing
+  it once at the repo root covers every build folder under it. Only the
+  verification pass needs it.
+
+`KIE_AI_API_KEY` stays unset unless you are generating imagery. Building from
+supplied photography needs no key and no spend, and the preflight treats it as
+optional.
+
+### Verified end to end
+
+The full chain was exercised on a throwaway build: encode a clip, serve it,
+drive it with the screenshot harness at desktop, phone, and reduced-motion
+settings. All three passes completed and wrote contact sheets. `encode.sh`
+produced the dense keyframe interval that makes a clip scrubbable, and the
+harness correctly flagged frozen clips and thin contrast in the unmodified
+skeleton, which is the behaviour that makes it worth running.
