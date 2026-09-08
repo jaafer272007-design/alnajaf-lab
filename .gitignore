@@ -1,0 +1,26 @@
+# Secrets. Never commit a real one.
+.env
+.env.local
+*.key
+
+# scroll-craft build output. A single build with video legs runs to hundreds of
+# megabytes, and committing it once puts it in history permanently. The
+# FINGERPRINTS.md registry is tracked on purpose: the uniqueness gate only
+# works if it persists across sessions.
+scrollcraft/builds/
+lab/
+out/
+dist/
+*.mp4
+*.mov
+*.webm
+
+# Node
+node_modules/
+package-lock.json
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
