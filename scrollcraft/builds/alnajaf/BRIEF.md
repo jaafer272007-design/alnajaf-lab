@@ -411,3 +411,15 @@ still correctly at full opacity. Its siblings all pass: the incoming leg is
 strictly monotone 0 to 1, the outgoing holds full strength underneath
 throughout, and no contact sheet shows a flash at any join. Fixing it would
 mean editing the shared engine, which the skill forbids per project.
+
+**Leg 5's opening took three rounds, and the reason is worth keeping.** Round
+one dimmed the glow, and reduced motion still failed at 2.26:1. Round two
+pulled the camera back to 10.5 units so the glow was small, and it failed at
+1.77:1 then 1.45:1, each time with a high mean and one bright patch: the glow
+was small but dead centre, and the top-left copy block's lower-right corner
+reaches the centre of a 1440-wide frame. Round three aimed the camera so the
+light sits low and right, outside the block's rectangle altogether, checked
+on a preview frame with the rectangle drawn on it before rendering. The
+lesson is that a poster is a composition, not a frame that happens to be
+first: under reduced motion it is held for the whole leg under copy at full
+opacity, so it has to be composed for that copy like any still.
