@@ -22,14 +22,14 @@ await page.goto(URL, { waitUntil: 'domcontentloaded' });
 await page.waitForSelector('html.sc-ready', { timeout: 15000 });
 await page.evaluate(() => document.fonts.ready);
 await page.waitForTimeout(900);
-const info = await page.evaluate(() => ({ h: document.body.scrollHeight, vh: innerHeight, state: document.querySelector('#stage').getAttribute('data-sc-verify-state'), webgl: !document.documentElement.classList.contains('no-webgl') }));
-console.log(`page ${W}x${H} lang=${LANG} height=${info.h} (${(info.h / info.vh).toFixed(1)}vh) webgl=${info.webgl} state=${info.state}`);
+const info = await page.evaluate(() => ({ h: document.body.scrollHeight, vh: innerHeight }));
+console.log(`page ${W}x${H} lang=${LANG} height=${info.h} (${(info.h / info.vh).toFixed(1)}vh)`);
 const max = info.h - info.vh;
 for (let i = 0; i < STOPS.length; i++) {
   const y = Math.round(max * STOPS[i]);
   await page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), y);
   await page.waitForTimeout(350);
-  const st = await page.evaluate(() => document.querySelector('#stage').getAttribute('data-sc-verify-state'));
+  const st = await page.evaluate(() => [...document.querySelectorAll('.film')].map((f) => { const v = f.querySelector('video'); return f.id + (f.classList.contains('is-live') ? '@' + v.currentTime.toFixed(2) : ':poster'); }).join(' '));
   await page.screenshot({ path: path.join(OUT, `${String(i).padStart(2, '0')}.png`) });
   console.log(`  ${String(i).padStart(2, '0')}  y=${y}  ${st}`);
 }

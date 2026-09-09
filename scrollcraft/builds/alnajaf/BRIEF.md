@@ -721,3 +721,34 @@ Authored, from those two instructions:
   needed a retake. The drop lives under chapter 04's opening band. The
   loader that fetches each clip a viewport ahead is re-armed on every
   rebuild of the score, after a first version was silently reverted with it.
+
+---
+
+## Fourth pass: the films take over
+
+Owner, verbatim: "why are still using the cheap dna now we have a
+professional video so use it for scrolling like the video moves only when
+the person scrolls", "make the icons of the navigation bar collapse until
+someone put the crosshair of the mouse on the icon", "make the whole page
+more smooth", and, on the peak: "we need to change the helix cuz it looks so
+cheap if you want i can let you create it using higgsfield".
+
+Authored:
+
+- The live helix is gone, along with the whole WebGL layer. The page is
+  lighter for it, which is most of "smoother".
+- The aisle film is now the opening itself. Hero and chapter 01 are one
+  pinned track of 4.8 viewport-heights; the title stands on the first
+  frames, steps aside at a fifth of the walk, and the chapter copy arrives on
+  the same shot. `Lab` in the dock lands at the point where that copy has
+  fully arrived.
+- The peak keeps its night and its lit letter, but as a film: a Higgsfield
+  still of frosted-glass strands with one red rung (Nano Banana, 2 credits)
+  animated by Seedance 2.5 (10 s, 1080p, 90 credits). The camera drifts along
+  the strand and the red brightens through the middle of the shot, which is
+  where "One letter." lands.
+- The drop stays under chapter 04.
+- The dock's rest state is smaller against a bigger hover state, with a
+  bouncier spring and a squared falloff, so the collapse-and-grow reads.
+- ScrollSmoother's lag is longer (1.4 s), the fixed chrome lost its backdrop
+  blur, and the scrubs are eased a touch more.

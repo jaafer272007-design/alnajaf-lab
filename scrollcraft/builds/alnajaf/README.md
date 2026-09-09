@@ -16,19 +16,21 @@ render/           build and verification scripts (see below)
 lab/              verification output. Not tracked.
 ```
 
-The object behind the chapters is rendered live: a double helix of porcelain
-beads on steel rungs, posed per chapter, opened and lit in the third. It
-costs nothing to generate and covers whatever viewport it is given, because it
-is drawn into the viewport.
+Three films carry the page, all generated with Seedance 2.5 through the
+owner's Higgsfield account, one take each, and every one of them moves only
+under the wheel:
 
-Two films, both generated with Seedance 2.5 through the owner's Higgsfield
-account from stills the owner made (`source/`), one take each:
-
-- Chapter 01: a single continuous dolly down the laboratory aisle, 10 s,
-  full-bleed under the copy, scrubbed by the scroll across the chapter's whole
-  visible life. `assets/lab.mp4` and `assets/lab-m.mp4` (phone, portrait crop).
+- The opening: a single continuous dolly down the laboratory aisle, 10 s. The
+  title stands on its first frames, the walk in is the scroll, and the
+  chapter 01 copy arrives further down the same shot. `assets/lab.*`
+- Chapter 03, the peak: night. The camera drifts along a frosted-glass strand
+  and one letter lights red. The still was made on Higgsfield too
+  (`source/read.png`), the take from it. `assets/read.*`
 - Chapter 04: one drop leaving a pipette, 5 s, under the chapter's opening
-  band. `assets/drop.mp4` and `assets/drop-m.mp4`.
+  band. `assets/drop.*`
+
+There is no live 3D on the page any more; the earlier helix was cut on the
+owner's judgement and replaced by the strand film.
 
 `render/film.sh <master> <name>` turns a master into the four assets: the
 dense-keyframe desktop encode, the portrait phone encode, and a poster from
@@ -38,15 +40,15 @@ tracked (`*.mp4` outside `assets/` is ignored).
 
 ## How it moves
 
-- `ScrollSmoother` smooths the wheel; `ScrollTrigger` pins chapters 01 to 03
-  and scrubs their timelines; `SplitText` splits headings into masked lines.
-- Chapters 01 (lab) and 03 (method) are pinned frames inside tall sections; the
-  section is the track and the inner frame is what pins. Chapter 02 is a rail
-  that travels sideways under the wheel on desktop and under the thumb on a
-  phone.
-- The ground crossfades to night on the way into chapter 03 and back on the
-  way out. The ground eases; the ink flips at the midpoint, so the two never
-  meet grey on grey.
+- `ScrollSmoother` smooths the wheel; `ScrollTrigger` pins the opening and
+  chapter 03 and scrubs their timelines; `SplitText` splits headings into
+  masked lines.
+- The opening (hero and chapter 01) and chapter 03 are pinned frames inside
+  tall sections; the section is the track and the inner frame is what pins.
+  Chapter 02 is a rail that travels sideways under the wheel on desktop and
+  under the thumb on a phone.
+- Chapter 03 is the one night chapter: its tokens are redefined on the section
+  and its film is dark, so the copy is light on night plates.
 - Navigation is a dock: six chapter icons in a pill that widen on a spring as
   the pointer nears them (a plain-JS port of the framer-motion Dock, same
   mass, stiffness and damping), with a label that rises on hover and a red dot

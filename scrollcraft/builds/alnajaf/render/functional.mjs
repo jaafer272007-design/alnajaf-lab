@@ -25,7 +25,7 @@ const settle = async (page) => { let last = null, same = 0; for (let i = 0; i < 
   await page.waitForSelector('html.sc-ready'); await page.waitForTimeout(1200);
   check('automation not announced', await page.evaluate(() => navigator.webdriver === false));
   check('smooth scroller active', await page.evaluate(() => !!document.querySelector('#smooth-content').style.transform || getComputedStyle(document.querySelector('#smooth-wrapper')).position === 'fixed'));
-  check('webgl world running', await page.evaluate(() => !document.documentElement.classList.contains('no-webgl') && !!window.__world));
+  check('opening film loads at once', await page.evaluate(() => new Promise((r) => { const t0 = Date.now(); const f = () => { if (document.querySelector('#labFilm').classList.contains('is-live')) r(true); else if (Date.now() - t0 > 8000) r(false); else setTimeout(f, 200); }; f(); })));
   check('cursor hidden before pointer moves', await page.evaluate(() => !document.documentElement.classList.contains('has-cursor')));
   await page.mouse.move(700, 450); await page.waitForTimeout(100);
   check('cursor appears after pointer moves', await page.evaluate(() => document.documentElement.classList.contains('has-cursor')));
@@ -42,10 +42,13 @@ const settle = async (page) => { let last = null, same = 0; for (let i = 0; i < 
 
   // index navigation through the smoother
   await page.click('.dock__item[href="#method"]'); await page.waitForTimeout(2200); await settle(page);
-  const m = await page.evaluate(() => { const r = document.querySelector('#method .chapter__pin').getBoundingClientRect(); return { top: Math.round(r.top), night: getComputedStyle(document.documentElement).getPropertyValue('--g').trim() }; });
+  const m = await page.evaluate(() => { const r = document.querySelector('#method .chapter__pin').getBoundingClientRect(); return { top: Math.round(r.top), night: getComputedStyle(document.querySelector('#method')).getPropertyValue('--g').trim() }; });
   check('index link lands on the method chapter', Math.abs(m.top) < 4, `pin top ${m.top}px, ground ${m.night}`);
   check('method chapter is night', /^(#0a0e17|rgba?\(10, ?14, ?23(, ?1)?\))$/.test(m.night), m.night);
     check('dock marks the active chapter', await page.evaluate(() => document.querySelector('.dock__item[href="#method"]').classList.contains('is-active')));
+  await page.click('.dock__item[href="#lab"]'); await page.waitForTimeout(2200); await settle(page);
+  check('Lab in the dock lands where the chapter copy has arrived', await page.evaluate(() => document.querySelector('#lab').classList.contains('is-on') && parseFloat(getComputedStyle(document.querySelector('#hero')).opacity) < 0.05));
+  check('and marks Lab, not Home', await page.evaluate(() => document.querySelector('.dock__item[href="#lab"]').classList.contains('is-active') && !document.querySelector('.dock__item[href="#top"]').classList.contains('is-active')));
   const dw = await page.$('.dock__item[href="#lab"]'); const db = await dw.boundingBox();
   await page.mouse.move(db.x + db.width / 2, db.y + db.height / 2); await page.waitForTimeout(1600);
   const grown = await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.dock__item[href="#lab"]')).width));
@@ -126,7 +129,7 @@ const settle = async (page) => { let last = null, same = 0; for (let i = 0; i < 
   const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
   await page.addInitScript(() => { const g = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (t, ...a) { return /webgl/.test(t) ? null : g.call(this, t, ...a); }; });
   await page.goto(URL, { waitUntil: 'domcontentloaded' }); await page.waitForSelector('html.sc-ready'); await page.waitForTimeout(800);
-  check('without WebGL the stage hides and the page stands', await page.evaluate(() => document.documentElement.classList.contains('no-webgl') && getComputedStyle(document.querySelector('#stage')).display === 'none' && document.querySelector('.hero__title').getBoundingClientRect().height > 100));
+  check('without WebGL the page stands', await page.evaluate(() => document.querySelector('.hero__title').getBoundingClientRect().height > 100 && document.querySelector('#labFilm') !== null));
   await page.close();
   const ctx = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1200, height: 800 } });
   const p2 = await ctx.newPage(); await p2.goto(URL, { waitUntil: 'load' });

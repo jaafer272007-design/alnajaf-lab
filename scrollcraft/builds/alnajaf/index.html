@@ -12,13 +12,22 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2312161b'/%3E%3Cpath d='M22 5.5A11 11 0 1 0 22 26.5 8.6 8.6 0 1 1 22 5.5z' fill='%23c92b23'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="site.css">
+<noscript>
+<style>
+  /* Without JavaScript nothing pins or scrubs. Lay the opening out as a document: the first frame, then the copy in order. */
+  .chapter--lab, .chapter--method { height: auto !important; }
+  .lab__pin, .method__pin { height: auto !important; min-height: 0 !important; }
+  .film { position: relative !important; inset: auto !important; height: 60vh; z-index: 0; }
+  .film__plate { display: none; }
+  .hero, .labcopy { position: static !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+  .dock { position: static; transform: none; }
+  .scrollcue { display: none; }
+</style>
+</noscript>
 </head>
 <body>
 
 <a class="skip" href="#visit"><span lang="en">Skip to booking</span><span lang="ar">انتقل إلى الحجز</span></a>
-
-<!-- The world: one live object, full viewport, behind every chapter. -->
-<div class="stage" id="stage" aria-hidden="true" data-sc-verify-state="boot"><canvas id="world"></canvas></div>
 
 <header class="bar" id="bar">
   <a class="brand" href="#top" data-to="#top" data-hover>
@@ -56,53 +65,55 @@
 <div id="smooth-content">
 <main id="main">
 
-  <!-- 00 · The opening. Type in front, the helix behind and to the side. -->
-  <section class="hero" id="top" data-sc-act="flow">
-    <p class="eyebrow hero__eyebrow" data-sc-cue><span lang="en">Al-Najaf Specialized Laboratory · Najaf, Iraq · Since 2007</span><span lang="ar">مختبر النجف التخصصي · النجف، العراق · منذ 2007</span></p>
-    <h1 class="display display--hero hero__title" data-sc-cue>
-      <span class="l" lang="en"><span class="line" data-line="1">We read</span><span class="line" data-line="2">the body</span><span class="line" data-line="3">letter by letter.</span></span>
-      <span class="l" lang="ar"><span class="line" data-line="1">نقرأ</span><span class="line" data-line="2">الجسد</span><span class="line" data-line="3">حرفاً حرفاً.</span></span>
-    </h1>
-    <div class="hero__foot">
-      <p class="lede" data-sc-cue><span lang="en">Molecular, genetic and pathology diagnostics, read on the instruments that matter and signed by consultant pathologists.</span><span lang="ar">فحوصات جزيئية وجينية ونسيجية، تُقرأ على أجهزةٍ تصنع الفرق ويوقّعها استشاريو علم الأمراض.</span></p>
-      <p class="cta">
-        <a class="btn btn--primary" href="#visit" data-to="#visit" data-magnet data-hover><span class="btn__l"><span lang="en">Book a sample</span><span lang="ar">احجز عينة</span></span><svg class="btn__i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 14a1 1 0 0 1-.8-1.6l9.9-10.2a.5.5 0 0 1 .9.5l-1.9 6A1 1 0 0 0 13 10h7a1 1 0 0 1 .8 1.6l-9.9 10.2a.5.5 0 0 1-.9-.5l1.9-6A1 1 0 0 0 11 14z"/></svg></a>
-        <a class="btn" href="#tests" data-to="#tests" data-magnet data-hover><span class="btn__l"><span lang="en">See the tests</span><span lang="ar">تصفح الفحوصات</span></span><svg class="btn__i btn__i--dir" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-      </p>
-    </div>
-    <a class="scrollcue" href="#lab" data-to="#lab" data-hover><span lang="en">Scroll</span><span lang="ar">مرّر</span><i></i></a>
-  </section>
-
-  <!-- 01 · The lab. Pinned; the helix crosses to the other side and the figures count. -->
-  <section class="chapter chapter--lab" id="lab" data-sc-act="pin">
-    <div class="chapter__pin">
-      <!-- The film: one continuous shot through the laboratory, scrubbed by the scroll. Full-bleed ground of this chapter; the copy sits on two porcelain plates over it. -->
+  <!-- 00 + 01 · The opening: one continuous shot down the aisle, scrubbed by the scroll. The title stands on its first frames; the chapter copy arrives further down the same shot. -->
+  <section class="chapter chapter--lab" id="top" data-sc-act="pin">
+    <div class="chapter__pin lab__pin" data-sc-world>
       <div class="film" id="labFilm" aria-hidden="true">
-        <picture><source media="(max-width: 860px)" srcset="assets/lab-p.webp"><img class="film__poster" src="assets/lab.webp" alt="" decoding="async" width="1920" height="1080"></picture>
+        <picture><source media="(max-width: 860px)" srcset="assets/lab-p.webp"><img class="film__poster" src="assets/lab.webp" alt="" decoding="async" fetchpriority="high" width="1920" height="1080"></picture>
         <video class="film__clip" data-sc-scrub data-src="assets/lab.mp4" data-src-mobile="assets/lab-m.mp4" muted playsinline preload="none"></video>
+        <div class="film__plate film__plate--hero"></div>
         <div class="film__plate film__plate--head"></div>
         <div class="film__plate film__plate--body"></div>
       </div>
-      <header class="chapter__head">
-        <span class="chapter__num">01</span>
-        <h2 class="display display--lg" data-sc-cue data-split><span lang="en">A laboratory built around one question.</span><span lang="ar">مختبرٌ بُني حول سؤالٍ واحد.</span></h2>
-      </header>
-      <div class="chapter__body lab__body">
-        <p class="display display--md lab__q" data-sc-cue><span lang="en">Is this answer right?</span><span lang="ar">هل هذا الجواب صحيح؟</span></p>
-        <p class="prose" data-sc-cue><span lang="en">Every result that leaves this building is checked against that question. Since 2007 the laboratory has worked to ISO and CAP-equivalent guidelines and taken part in national external quality assessment, so a report from Najaf reads the same as one from anywhere in the world.</span><span lang="ar">كل نتيجة تخرج من هذا المبنى تُختبر أمام هذا السؤال. منذ عام 2007 يعمل المختبر وفق إرشادات مكافئة لمعايير ISO وCAP ويشارك في برنامج التقييم الخارجي للجودة، ليكون تقرير النجف مقروءاً كما يُقرأ في أي مكان في العالم.</span></p>
-        <dl class="stats" data-sc-cue>
-          <div class="stat" data-hover><dt><span lang="en">Laboratory tests</span><span lang="ar">فحص مختبري</span></dt><dd><span class="num" data-count="1500">1500</span><span class="unit">+</span></dd></div>
-          <div class="stat" data-hover><dt><span lang="en">Instruments</span><span lang="ar">جهاز</span></dt><dd><span class="num" data-count="80">80</span><span class="unit">+</span></dd></div>
-          <div class="stat" data-hover><dt><span lang="en">Specialists</span><span lang="ar">متخصص</span></dt><dd><span class="num" data-count="20">20</span><span class="unit">+</span></dd></div>
-          <div class="stat" data-hover><dt><span lang="en">Accuracy</span><span lang="ar">دقة</span></dt><dd><span class="num" data-count="99.8" data-dec="1">99.8</span><span class="unit">%</span></dd></div>
-        </dl>
+
+      <div class="hero" id="hero">
+        <p class="eyebrow hero__eyebrow" data-sc-cue><span lang="en">Al-Najaf Specialized Laboratory · Najaf, Iraq · Since 2007</span><span lang="ar">مختبر النجف التخصصي · النجف، العراق · منذ 2007</span></p>
+        <h1 class="display display--hero hero__title" data-sc-cue>
+          <span class="l" lang="en"><span class="line" data-line="1">We read</span><span class="line" data-line="2">the body</span><span class="line" data-line="3">letter by letter.</span></span>
+          <span class="l" lang="ar"><span class="line" data-line="1">نقرأ</span><span class="line" data-line="2">الجسد</span><span class="line" data-line="3">حرفاً حرفاً.</span></span>
+        </h1>
+        <div class="hero__foot">
+          <p class="lede" data-sc-cue><span lang="en">Molecular, genetic and pathology diagnostics, read on the instruments that matter and signed by consultant pathologists.</span><span lang="ar">فحوصات جزيئية وجينية ونسيجية، تُقرأ على أجهزةٍ تصنع الفرق ويوقّعها استشاريو علم الأمراض.</span></p>
+          <p class="cta">
+            <a class="btn btn--primary" href="#visit" data-to="#visit" data-magnet data-hover><span class="btn__l"><span lang="en">Book a sample</span><span lang="ar">احجز عينة</span></span><svg class="btn__i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 14a1 1 0 0 1-.8-1.6l9.9-10.2a.5.5 0 0 1 .9.5l-1.9 6A1 1 0 0 0 13 10h7a1 1 0 0 1 .8 1.6l-9.9 10.2a.5.5 0 0 1-.9-.5l1.9-6A1 1 0 0 0 11 14z"/></svg></a>
+            <a class="btn" href="#tests" data-to="#tests" data-magnet data-hover><span class="btn__l"><span lang="en">See the tests</span><span lang="ar">تصفح الفحوصات</span></span><svg class="btn__i btn__i--dir" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          </p>
+        </div>
+        <a class="scrollcue" href="#lab" data-to="#lab" data-hover><span lang="en">Scroll</span><span lang="ar">مرّر</span><i></i></a>
+      </div>
+
+      <div class="labcopy" id="lab">
+        <header class="chapter__head">
+          <span class="chapter__num">01</span>
+          <h2 class="display display--lg" data-sc-cue data-split><span lang="en">A laboratory built around one question.</span><span lang="ar">مختبرٌ بُني حول سؤالٍ واحد.</span></h2>
+        </header>
+        <div class="chapter__body lab__body">
+          <p class="display display--md lab__q" data-sc-cue><span lang="en">Is this answer right?</span><span lang="ar">هل هذا الجواب صحيح؟</span></p>
+          <p class="prose" data-sc-cue><span lang="en">Every result that leaves this building is checked against that question. Since 2007 the laboratory has worked to ISO and CAP-equivalent guidelines and taken part in national external quality assessment, so a report from Najaf reads the same as one from anywhere in the world.</span><span lang="ar">كل نتيجة تخرج من هذا المبنى تُختبر أمام هذا السؤال. منذ عام 2007 يعمل المختبر وفق إرشادات مكافئة لمعايير ISO وCAP ويشارك في برنامج التقييم الخارجي للجودة، ليكون تقرير النجف مقروءاً كما يُقرأ في أي مكان في العالم.</span></p>
+          <dl class="stats" data-sc-cue>
+            <div class="stat" data-hover><dt><span lang="en">Laboratory tests</span><span lang="ar">فحص مختبري</span></dt><dd><span class="num" data-count="1500">1500</span><span class="unit">+</span></dd></div>
+            <div class="stat" data-hover><dt><span lang="en">Instruments</span><span lang="ar">جهاز</span></dt><dd><span class="num" data-count="80">80</span><span class="unit">+</span></dd></div>
+            <div class="stat" data-hover><dt><span lang="en">Specialists</span><span lang="ar">متخصص</span></dt><dd><span class="num" data-count="20">20</span><span class="unit">+</span></dd></div>
+            <div class="stat" data-hover><dt><span lang="en">Accuracy</span><span lang="ar">دقة</span></dt><dd><span class="num" data-count="99.8" data-dec="1">99.8</span><span class="unit">%</span></dd></div>
+          </dl>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- 02 · The tests. A rail that travels sideways under the wheel on desktop, and under the thumb on a phone. -->
   <section class="chapter chapter--tests" id="tests" data-sc-act="pan">
-    <div class="chapter__pin tests__pin">
+    <div class="chapter__pin tests__pin" data-sc-world>
       <header class="chapter__head tests__head">
         <span class="chapter__num">02</span>
         <h2 class="display display--lg" data-sc-cue data-split><span lang="en">Seven departments. One standard.</span><span lang="ar">سبعة أقسام. معيارٌ واحد.</span></h2>
@@ -164,9 +175,15 @@
     </div>
   </section>
 
-  <!-- 03 · The method. The ground goes dark, the helix opens, one letter lights. The peak, with the most scroll. -->
+  <!-- 03 · The method. Night: the camera drifts along the strand and one letter lights. The peak, with the most scroll. -->
   <section class="chapter chapter--method" id="method" data-sc-act="pin">
-    <div class="chapter__pin method__pin">
+    <div class="chapter__pin method__pin" data-sc-world>
+      <div class="film film--night" id="methodFilm" aria-hidden="true">
+        <picture><source media="(max-width: 860px)" srcset="assets/read-p.webp"><img class="film__poster" src="assets/read.webp" alt="" decoding="async" width="1920" height="1080"></picture>
+        <video class="film__clip" data-sc-scrub data-src="assets/read.mp4" data-src-mobile="assets/read-m.mp4" muted playsinline preload="none"></video>
+        <div class="film__plate film__plate--head"></div>
+        <div class="film__plate film__plate--steps"></div>
+      </div>
       <header class="chapter__head method__head">
         <span class="chapter__num">03</span>
         <h2 class="display display--lg" data-sc-cue data-split><span lang="en">From a drop to a signed answer.</span><span lang="ar">من قطرةٍ إلى جوابٍ موقَّع.</span></h2>
@@ -202,9 +219,9 @@
     </div>
   </section>
 
-  <!-- 04 · The people and the instruments. Flowing, on paper again. -->
+  <!-- 04 · The people and the instruments. Flowing, on paper. -->
   <section class="chapter chapter--people" id="people" data-sc-act="flow">
-    <!-- The second film: one drop, under the chapter's opening band. Scrubbed across the band's visible life. -->
+    <!-- The drop, under the chapter's opening band: every test begins with one. Scrubbed across the band's visible life. -->
     <div class="film film--band" id="peopleFilm" aria-hidden="true">
       <picture><source media="(max-width: 860px)" srcset="assets/drop-p.webp"><img class="film__poster" src="assets/drop.webp" alt="" decoding="async" width="1920" height="1080"></picture>
       <video class="film__clip" data-sc-scrub data-src="assets/drop.mp4" data-src-mobile="assets/drop-m.mp4" muted playsinline preload="none"></video>
@@ -292,7 +309,7 @@
       </form>
     </div>
 
-    <footer class="foot" data-sc-verify-hold="true">
+    <footer class="foot" data-sc-verify-state="end" data-sc-verify-hold="true">
       <p class="foot__iso"><span lang="en">ISO accredited. Working to ISO and CAP-equivalent guidelines since 2007.</span><span lang="ar">معتمد دولياً (ISO). نعمل وفق إرشادات مكافئة لمعايير ISO وCAP منذ 2007.</span></p>
       <p class="foot__addr"><span lang="en">Al-Iskan Street, near Al-Ameer Private Hospital, Najaf, Iraq</span><span lang="ar">شارع الإسكان، قرب مستشفى الأمير الأهلي، النجف، العراق</span></p>
       <p class="foot__copy"><span lang="en">© 2026 Al-Najaf Specialized Laboratory</span><span lang="ar">© 2026 مختبر النجف التخصصي</span></p>

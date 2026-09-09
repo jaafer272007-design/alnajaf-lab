@@ -80,10 +80,6 @@ html[lang="en"] .lang__opt, html[lang="ar"] .lang__opt { display: inline-flex; }
 html[dir="rtl"] { --dir: -1; }
 html[dir="ltr"] { --dir: 1; }
 
-/* ---------- the stage ---------- */
-.stage { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-.stage canvas { width: 100%; height: 100%; }
-html.no-webgl .stage { display: none; }
 #smooth-wrapper { position: relative; z-index: 1; }
 #smooth-content { position: relative; }
 
@@ -225,17 +221,15 @@ html[lang="ar"] .label, html[lang="ar"] .eyebrow { font-family: var(--font-text)
 }
 .lang:hover .lang__opt[aria-pressed="false"] { color: var(--ink); }
 
-/* ---------- hero ---------- */
+/* ---------- the opening: hero layer over the film ---------- */
 .hero {
-  position: relative;
-  min-height: 100svh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  position: absolute; inset: 0;
+  display: grid; grid-template-rows: auto 1fr auto; gap: 1rem;
   padding: calc(var(--bar-h) + 1.5rem) var(--gutter) 1.5rem;
-  gap: 1rem;
+  will-change: transform, opacity;
 }
-.hero__eyebrow { align-self: start; }
-.hero__title { align-self: center; }
+.hero__eyebrow { align-self: start; justify-self: start; max-width: 100%; }
+.hero__title { align-self: center; justify-self: start; max-width: 100%; }
 .hero__title .line { display: block; will-change: transform; }
 .hero__title .line[data-line="2"] { padding-inline-start: 0.16em; }
 .hero__title .line[data-line="3"] { color: var(--accent); }
@@ -263,26 +257,31 @@ html[dir="rtl"] .scrollcue i::after { animation-name: cue-rtl; }
 .chapter__head .display { max-width: 16ch; }
 .chapter__head .prose { grid-column: 2; }
 
-/* 01 lab */
-.chapter--lab .chapter__pin { grid-template-rows: auto 1fr; position: relative; isolation: isolate; }
-.film { position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--gutter)); right: calc(-1 * var(--gutter)); z-index: -1; overflow: hidden; background: var(--g2); }
+/* 00 + 01: the opening track. The section is the track; the frame pins; the film is its ground. */
+.chapter--lab { height: 480svh; padding: 0; }
+.lab__pin { position: relative; isolation: isolate; display: block; height: 100svh; min-height: 0; padding: 0; }
+.film { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: var(--g2); }
 .film__poster, .film__clip { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; }
 .film__clip { opacity: 0; transition: opacity 0.5s var(--ease); }
 .film.is-live .film__clip { opacity: 1; }
 .film__plate { position: absolute; pointer-events: none; }
-.film__plate--head { left: 0; top: 0; width: 66%; height: 56%; background: radial-gradient(ellipse at 18% 18%, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.9) 42%, rgba(243, 244, 242, 0) 74%); }
-.film__plate--body { right: 0; bottom: 0; width: 70%; height: 66%; background: radial-gradient(ellipse at 82% 84%, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.92) 46%, rgba(243, 244, 242, 0) 78%); }
-html[dir="rtl"] .film__plate--head { left: auto; right: 0; background: radial-gradient(ellipse at 82% 18%, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.9) 42%, rgba(243, 244, 242, 0) 74%); }
-html[dir="rtl"] .film__plate--body { right: auto; left: 0; background: radial-gradient(ellipse at 18% 84%, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.92) 46%, rgba(243, 244, 242, 0) 78%); }
-@media (max-width: 860px) {
-  /* A phone holds the copy top and bottom, so the film is seen through the middle: the plates
-     stop where the copy stops instead of meeting in the centre. */
-  .film__plate--head { width: 100%; height: 36%; background: linear-gradient(180deg, rgba(243, 244, 242, 0.96) 0%, rgba(243, 244, 242, 0.88) 55%, rgba(243, 244, 242, 0) 100%); }
-  .film__plate--body { width: 100%; height: 58%; background: linear-gradient(0deg, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.92) 62%, rgba(243, 244, 242, 0) 100%); }
-  html[dir="rtl"] .film__plate--head, html[dir="rtl"] .film__plate--body { left: 0; right: 0; }
-  .film__poster, .film__clip { object-position: 50% 45%; }
+/* Plates are near solid across the copy and fall off only past it: the film has dark
+   instruments and near-white walls, and the type has to clear both. */
+/* Under the title the film is a soft presence; it comes up to full strength the moment the
+   title steps aside, which is the walk-in beat. The title runs most of the width, so the plate does too. */
+.film__plate--hero { left: 0; top: 0; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.95) 70%, rgba(243, 244, 242, 0.88) 88%, rgba(243, 244, 242, 0.62) 100%); }
+.film__plate--head { left: 0; top: 0; width: 70%; height: 58%; opacity: 0; background: radial-gradient(ellipse at 16% 14%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.95) 48%, rgba(243, 244, 242, 0.7) 70%, rgba(243, 244, 242, 0) 90%); }
+.film__plate--body { right: 0; bottom: 0; width: 72%; height: 70%; opacity: 0; background: radial-gradient(ellipse at 84% 88%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.96) 50%, rgba(243, 244, 242, 0.7) 72%, rgba(243, 244, 242, 0) 92%); }
+html[dir="rtl"] .film__plate--hero { background: linear-gradient(270deg, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.95) 70%, rgba(243, 244, 242, 0.88) 88%, rgba(243, 244, 242, 0.62) 100%); }
+html[dir="rtl"] .film__plate--head { left: auto; right: 0; background: radial-gradient(ellipse at 84% 14%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.95) 48%, rgba(243, 244, 242, 0.7) 70%, rgba(243, 244, 242, 0) 90%); }
+html[dir="rtl"] .film__plate--body { right: auto; left: 0; background: radial-gradient(ellipse at 16% 88%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.96) 50%, rgba(243, 244, 242, 0.7) 72%, rgba(243, 244, 242, 0) 92%); }
+.labcopy {
+  position: absolute; inset: 0;
+  display: grid; grid-template-rows: auto 1fr; gap: 1.5rem;
+  padding: calc(var(--bar-h) + 1.25rem) var(--gutter) 1.5rem;
+  opacity: 0; visibility: hidden; pointer-events: none;
 }
-@media (prefers-reduced-motion: reduce) { .film__clip { display: none; } }
+.labcopy.is-on { opacity: 1; visibility: visible; pointer-events: auto; }
 .lab__body { align-self: end; justify-self: end; display: grid; gap: 1.25rem; max-width: min(46rem, 60vw); }
 .lab__q { color: var(--accent); }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 1.25rem; border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 0.5rem; }
@@ -294,6 +293,15 @@ html[lang="ar"] .stat dt { font-family: var(--font-text); letter-spacing: 0; fon
 .stat .unit { font-size: 0.55em; color: var(--accent); }
 .stat:hover { transform: translateY(-4px); }
 .stat:hover dd { color: var(--accent); }
+@media (max-width: 860px) {
+  .film__plate--hero { width: 100%; height: 100%; background: linear-gradient(180deg, rgba(243, 244, 242, 0.92) 0%, rgba(243, 244, 242, 0.95) 45%, rgba(243, 244, 242, 0.97) 100%); }
+  .film__plate--head { width: 100%; height: 52%; background: linear-gradient(180deg, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.95) 70%, rgba(243, 244, 242, 0) 100%); }
+  .film__plate--body { width: 100%; height: 68%; background: linear-gradient(0deg, rgba(243, 244, 242, 0.99) 0%, rgba(243, 244, 242, 0.98) 82%, rgba(243, 244, 242, 0) 100%); }
+  html[dir="rtl"] .film__plate--hero, html[dir="rtl"] .film__plate--head, html[dir="rtl"] .film__plate--body { left: 0; right: 0; }
+  .film__poster, .film__clip { object-position: 50% 45%; }
+  .chapter--lab { height: 420svh; }
+}
+@media (prefers-reduced-motion: reduce) { .film__clip { display: none; } }
 
 /* 02 tests: the rail */
 .tests__pin { grid-template-rows: auto 1fr; overflow: clip; }
@@ -334,8 +342,16 @@ html[dir="rtl"] .card__go::after { content: "←"; }
 .card--home .card__go { border-color: var(--g); }
 .card--home .card__go:hover { color: var(--accent); border-color: var(--accent); }
 
-/* 03 method: night */
-.method__pin { grid-template-rows: auto 1fr; }
+/* 03 method: night. The strand film is the ground; the copy is light on night plates. */
+.method__pin { position: relative; isolation: isolate; grid-template-rows: auto 1fr; }
+.chapter--method { --g: #0a0e17; --g2: #10162a; --surface: #141b2c; --line: rgba(242, 243, 241, 0.16); --ink: #f2f3f1; --ink2: #aab2bf; --ink3: #7d8694; --accent: #ff5f52; --shadow: 0, 0, 0; color: var(--ink); }
+.film--night { background: #0a0e17; }
+/* The strand's glass beads are near white and pass under the copy, so the plates hold the
+   night almost solid across the copy and fall off only past it. */
+.method__pin .film__plate--head { opacity: 1; width: 66%; height: 58%; background: radial-gradient(ellipse at 16% 14%, rgba(10, 14, 23, 0.97) 0%, rgba(10, 14, 23, 0.94) 48%, rgba(10, 14, 23, 0.6) 70%, rgba(10, 14, 23, 0) 90%); }
+.film__plate--steps { left: 0; bottom: 0; width: 66%; height: 76%; background: radial-gradient(ellipse at 14% 90%, rgba(10, 14, 23, 0.98) 0%, rgba(10, 14, 23, 0.95) 52%, rgba(10, 14, 23, 0.6) 74%, rgba(10, 14, 23, 0) 92%); }
+html[dir="rtl"] .method__pin .film__plate--head { left: auto; right: 0; background: radial-gradient(ellipse at 84% 14%, rgba(10, 14, 23, 0.97) 0%, rgba(10, 14, 23, 0.94) 48%, rgba(10, 14, 23, 0.6) 70%, rgba(10, 14, 23, 0) 90%); }
+html[dir="rtl"] .film__plate--steps { left: auto; right: 0; background: radial-gradient(ellipse at 86% 90%, rgba(10, 14, 23, 0.98) 0%, rgba(10, 14, 23, 0.95) 52%, rgba(10, 14, 23, 0.6) 74%, rgba(10, 14, 23, 0) 92%); }
 .steps { align-self: end; display: grid; gap: 0; max-width: min(40rem, 52vw); border-top: 1px solid var(--line); }
 .step { display: grid; grid-template-columns: 2.5rem 9rem 1fr; gap: 0 1rem; align-items: baseline; padding: 0.7rem 0; border-bottom: 1px solid var(--line); color: var(--ink3); transition: color 0.45s var(--ease), padding 0.45s var(--ease); }
 .step__i { font-family: var(--font-mono); font-size: var(--t-label); letter-spacing: 0.1em; }
@@ -351,51 +367,29 @@ html[lang="ar"] .step__t { text-transform: none; }
   font-family: var(--font-display); font-stretch: var(--stretch); font-weight: var(--display-weight); text-transform: uppercase;
   font-size: clamp(2rem, 6vw, 6rem); line-height: 0.9; color: var(--accent);
   opacity: 0; pointer-events: none; text-align: end; max-width: 6ch;
+  padding: 1.5rem 2rem; border-radius: 999px;
+  background: radial-gradient(ellipse at center, rgba(10, 14, 23, 0.9) 0%, rgba(10, 14, 23, 0.7) 55%, rgba(10, 14, 23, 0) 100%);
 }
 html[lang="ar"] .method__peak { text-transform: none; }
+@media (max-width: 860px) {
+  .method__pin .film__plate--head { width: 100%; height: 40%; background: linear-gradient(180deg, rgba(10, 14, 23, 0.92) 0%, rgba(10, 14, 23, 0.75) 60%, rgba(10, 14, 23, 0) 100%); }
+  .film__plate--steps { width: 100%; height: 68%; background: linear-gradient(0deg, rgba(10, 14, 23, 0.94) 0%, rgba(10, 14, 23, 0.85) 60%, rgba(10, 14, 23, 0) 100%); }
+  html[dir="rtl"] .method__pin .film__plate--head, html[dir="rtl"] .film__plate--steps { left: 0; right: 0; }
+}
 
-/* 04 people */
+/* 04 people: the drop under the opening band, then the lists on porcelain */
 .chapter--people { position: relative; isolation: isolate; padding-top: clamp(5rem, 14vh, 9rem); padding-bottom: clamp(4rem, 10vh, 7rem); }
 .film--band { bottom: auto; height: min(78svh, 46rem); }
 .people__head { min-height: calc(min(78svh, 46rem) - clamp(5rem, 14vh, 9rem)); align-content: start; }
-.film--band .film__plate--head { width: 76%; height: 100%; background: radial-gradient(ellipse at 14% 30%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.95) 46%, rgba(243, 244, 242, 0) 76%); }
-html[dir="rtl"] .film--band .film__plate--head { background: radial-gradient(ellipse at 86% 30%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.95) 46%, rgba(243, 244, 242, 0) 76%); }
+.film--band .film__plate--head { opacity: 1; width: 76%; height: 100%; background: radial-gradient(ellipse at 14% 30%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.95) 46%, rgba(243, 244, 242, 0) 76%); }
+html[dir="rtl"] .film--band .film__plate--head { left: auto; right: 0; background: radial-gradient(ellipse at 86% 30%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.95) 46%, rgba(243, 244, 242, 0) 76%); }
 .film--band::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 28%; background: linear-gradient(180deg, rgba(243, 244, 242, 0) 0%, var(--g) 100%); }
 @media (max-width: 860px) {
   .film--band { height: min(64svh, 34rem); }
   .people__head { min-height: calc(min(64svh, 34rem) - clamp(5rem, 14vh, 9rem)); }
   .film--band .film__plate--head { width: 100%; height: 100%; background: linear-gradient(180deg, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.9) 50%, rgba(243, 244, 242, 0.2) 100%); }
+  html[dir="rtl"] .film--band .film__plate--head { left: 0; right: 0; }
 }
-.chapter--people .chapter__head .display { max-width: 22ch; }
-.people__grid { display: grid; grid-template-columns: 5fr 7fr; gap: 3rem clamp(2rem, 6vw, 6rem); margin-top: clamp(2.5rem, 6vh, 4rem); }
-.people__col { display: grid; gap: 1rem; align-content: start; }
-.inst { border-top: 1px solid var(--line); }
-.inst__row {
-  position: relative; display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: baseline;
-  padding: 0.9rem 0.6rem; margin: 0 -0.6rem; border-bottom: 1px solid var(--line);
-  transition: color 0.35s var(--ease), padding 0.45s var(--ease);
-}
-.inst__row::before { content: ""; position: absolute; inset: 0; background: var(--ink); opacity: 0; transform: scaleX(0.96); transition: opacity 0.4s var(--ease), transform 0.5s var(--ease); z-index: -1; border-radius: 2px; }
-.inst__name { font-family: var(--font-display); font-stretch: var(--stretch); font-weight: var(--display-weight); text-transform: uppercase; font-size: clamp(1.25rem, 1.9vw, 1.8rem); line-height: 1; letter-spacing: -0.005em; }
-.inst__role { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; color: var(--ink2); transition: color 0.35s; text-align: end; }
-html[lang="ar"] .inst__role { font-family: var(--font-text); letter-spacing: 0; font-size: 0.85rem; }
-.inst__row:hover { color: var(--g); padding-inline-start: 1rem; }
-.inst__row:hover::before { opacity: 1; transform: scaleX(1); }
-.inst__row:hover .inst__role { color: var(--accent); }
-.people__note { font-size: var(--t-small); }
-.team { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
-.person {
-  display: grid; grid-template-columns: 2.8rem 1fr; grid-template-rows: auto auto; gap: 0.15rem 0.9rem; align-items: center;
-  padding: 1rem; border: 1px solid var(--line); border-radius: calc(var(--radius) + 2px); background: var(--surface);
-  transition: transform 0.55s var(--ease), box-shadow 0.55s var(--ease), border-color 0.4s;
-  box-shadow: 0 8px 26px -20px rgba(var(--shadow), 0.4);
-}
-.person__mono { grid-row: 1 / span 2; display: grid; place-items: center; width: 2.8rem; height: 2.8rem; border-radius: 50%; border: 1.5px solid var(--ink); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; transition: background 0.4s var(--ease), color 0.4s var(--ease), border-color 0.4s; }
-.person__name { font-weight: 600; font-size: 1rem; line-height: 1.25; }
-.person__role { font-size: 0.8rem; line-height: 1.4; color: var(--ink2); }
-.person:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: 0 26px 40px -24px rgba(var(--shadow), 0.45); }
-.person:hover .person__mono { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-
 /* 05 visit */
 .chapter--visit { padding-top: clamp(4rem, 12vh, 8rem); padding-bottom: 2rem; }
 .chapter--visit .chapter__head .display { max-width: 10ch; }
@@ -474,8 +468,9 @@ html.has-cursor input, html.has-cursor textarea, html.has-cursor select { cursor
   .chapter__num { min-width: 0; width: 3rem; }
   .chapter__head .prose { grid-column: 1; }
   .lab__body { max-width: none; justify-self: stretch; }
+  .labcopy { gap: 0.8rem; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 1rem; }
-  .chapter__pin { padding-bottom: 5.5rem; }  /* the dock sits on the bottom edge */
+  .chapter__pin, .labcopy, .hero { padding-bottom: 5.5rem; }  /* the dock sits on the bottom edge */
   .tests__pin { min-height: 0; padding-bottom: 0; }
   .rail { margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .rail::-webkit-scrollbar { display: none; }
@@ -506,7 +501,8 @@ html.has-cursor input, html.has-cursor textarea, html.has-cursor select { cursor
   .lede { font-size: 0.95rem; }
   .chapter__pin { padding-top: calc(var(--bar-h) + 0.5rem); gap: 0.6rem; padding-bottom: 0.75rem; }
   .chapter__head .display { max-width: 26ch; }
-  .chapter--lab .chapter__pin { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; column-gap: 3rem; }
+  .labcopy { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; column-gap: 3rem; }
+  .hero { padding-top: calc(var(--bar-h) + 0.5rem); gap: 0.4rem; }
   .lab__body { max-width: none; gap: 0.6rem; }
   .lab__body .prose { font-size: 0.9rem; }
   .stats { padding-top: 0.5rem; margin-top: 0; }
@@ -538,9 +534,8 @@ html[lang="en"] [data-split] > span[lang="ar"], html[lang="ar"] [data-split] > s
 html[lang="en"] .hero__title > .l[lang="ar"], html[lang="ar"] .hero__title > .l[lang="en"] { display: none; }
 .hero__title .line { width: max-content; max-width: 100%; }
 /* pinned chapters own their travel: the section is the track, the inner frame is what pins */
-.chapter--lab { height: 260svh; }
 .chapter--method { height: 440svh; }
-@media (max-width: 860px) { .chapter--lab { height: 220svh; } .chapter--method { height: 360svh; } }
+@media (max-width: 860px) { .chapter--method { height: 360svh; } }
 
 /* ---------- the dock ---------- */
 /* The chapters as a row of icons. Each one widens as the pointer nears it, on a spring, and the
@@ -554,7 +549,6 @@ html[lang="en"] .hero__title > .l[lang="ar"], html[lang="ar"] .hero__title > .l[
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(242, 243, 242, 0.92) 100%);
   border: 1px solid rgba(18, 22, 27, 0.08);
   box-shadow: 0 1px 0 #ffffff inset, 0 1px 2px rgba(18, 22, 27, 0.06), 0 14px 30px -12px rgba(18, 22, 27, 0.3);
-  backdrop-filter: blur(10px);
 }
 .dock__item {
   position: relative; display: flex; align-items: center; justify-content: center;
