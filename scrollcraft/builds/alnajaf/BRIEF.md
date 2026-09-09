@@ -701,3 +701,14 @@ Authored, from those two instructions:
   at a few frames a second in a software renderer, not the page. No video is
   on the page. A real film for the hero is a separate decision; see the
   reply that accompanies this pass.
+
+- **The film.** The owner wants a real cinematic shot on the page and supplied
+  two frames made in ChatGPT from my prompts: the laboratory aisle and a
+  pipette drop (`source/`). The aisle becomes one continuous 10-second shot
+  under chapter 01, full-bleed, scrubbed by the scroll across the chapter's
+  whole visible life, with the copy on two porcelain plates over it. The helix
+  steps out of that chapter. The drop is held for a second, shorter film.
+  Generation runs through the owner's Higgsfield account (Seedance 2.5,
+  10 s, 1080p, silent: 90 credits a take) once a plan is active; until then
+  the slot holds a free placeholder push over the still, so the layer is
+  built and verified before a credit is spent.

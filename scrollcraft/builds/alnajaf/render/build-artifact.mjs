@@ -23,9 +23,29 @@ let app = read('app.js').replace(/^const THREE_URL = '\.\/vendor\/three\.module\
 if (!app.includes(THREE_CDN)) throw new Error('three.js URL was not rewritten for the artifact');
 if (/import\(\s*'\.\//.test(app)) throw new Error('a local dynamic import survived into the artifact');
 
-let out = body
+// Posters as data URIs; the clip as base64 handed to the page as a blob URL before the
+// script runs, since the page fetches its clip and a blob is same-origin everywhere.
+const b64 = (p) => fs.readFileSync(path.join(B, p)).toString('base64');
+let out = body;
+for (const f of fs.readdirSync(path.join(B, 'assets')).filter((f) => f.endsWith('.webp'))) out = out.split(`assets/${f}`).join(`data:image/webp;base64,${b64(`assets/${f}`)}`);
+const clips = [];
+out = out.replace(/data-src(-mobile)?="assets\/([^"]+\.mp4)"/g, (m, mob, file) => {
+  if (!fs.existsSync(path.join(B, 'assets', file))) return m;
+  let i = clips.findIndex((c) => c.file === file);
+  if (i === -1) { i = clips.length; clips.push({ file, b64: b64(`assets/${file}`) }); }
+  return `data-clip${mob ? '-mobile' : ''}="${i}"`;
+});
+const boot = clips.length ? `<script>
+(function () {
+  var RAW = ${JSON.stringify(clips.map((c) => c.b64))};
+  var urls = RAW.map(function (s) { var bin = atob(s), n = bin.length, a = new Uint8Array(n); for (var i = 0; i < n; i++) a[i] = bin.charCodeAt(i); return URL.createObjectURL(new Blob([a], { type: 'video/mp4' })); });
+  document.querySelectorAll('[data-clip]').forEach(function (v) { v.setAttribute('data-src', urls[+v.dataset.clip]); });
+  document.querySelectorAll('[data-clip-mobile]').forEach(function (v) { v.setAttribute('data-src-mobile', urls[+v.dataset.clipMobile]); });
+})();
+</script>` : '';
+out = out
   .replace(/<script src="vendor\/(gsap|ScrollTrigger|ScrollSmoother|SplitText)\.min\.js"><\/script>/g, (m, f) => `<script src="${GSAP}${f}.min.js"></script>`)
-  .replace('<script type="module" src="app.js"></script>', () => `<script type="module">\n${app}\n</script>`); // a function, because "$$" and "$'" in the script are replacement patterns to a string
+  .replace('<script type="module" src="app.js"></script>', () => `${boot}\n<script type="module">\n${app}\n</script>`); // a function, because "$$" and "$'" in the script are replacement patterns to a string
 
 const head = `<title>${title}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,4 +62,6 @@ if (left) console.warn('WARNING unresolved local references:', [...new Set(left)
 
 const dest = path.join(HERE, 'artifact.html');
 fs.writeFileSync(dest, out);
-console.log(`${dest}  ${(fs.statSync(dest).size / 1024).toFixed(0)} KB`);
+const mb = fs.statSync(dest).size / 1048576;
+console.log(`${dest}  ${mb.toFixed(1)} MB  (${clips.length} clip(s) embedded)`);
+if (mb > 15.5) console.warn('OVER the 16MB artifact limit.');

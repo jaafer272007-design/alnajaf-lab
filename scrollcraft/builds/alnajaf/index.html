@@ -76,6 +76,13 @@
   <!-- 01 · The lab. Pinned; the helix crosses to the other side and the figures count. -->
   <section class="chapter chapter--lab" id="lab" data-sc-act="pin">
     <div class="chapter__pin">
+      <!-- The film: one continuous shot through the laboratory, scrubbed by the scroll. Full-bleed ground of this chapter; the copy sits on two porcelain plates over it. -->
+      <div class="film" id="labFilm" aria-hidden="true">
+        <picture><source media="(max-width: 860px)" srcset="assets/lab-p.webp"><img class="film__poster" src="assets/lab.webp" alt="" decoding="async" width="1920" height="1080"></picture>
+        <video class="film__clip" data-sc-scrub data-src="assets/lab.mp4" data-src-mobile="assets/lab-m.mp4" muted playsinline preload="none"></video>
+        <div class="film__plate film__plate--head"></div>
+        <div class="film__plate film__plate--body"></div>
+      </div>
       <header class="chapter__head">
         <span class="chapter__num">01</span>
         <h2 class="display display--lg" data-sc-cue data-split><span lang="en">A laboratory built around one question.</span><span lang="ar">مختبرٌ بُني حول سؤالٍ واحد.</span></h2>

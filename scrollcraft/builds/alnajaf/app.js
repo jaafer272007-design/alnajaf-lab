@@ -85,6 +85,50 @@ document.addEventListener('click', (e) => {
 const world = { chapter: 'top', p: 0, night: 0, set(ch, p) { this.chapter = ch; this.p = p; this.dirty = true; }, dirty: true };
 
 // =============================================================================
+// The film. One clip under chapter 01, fetched only when the chapter is near, and scrubbed:
+// the playhead follows the chapter's progress, eased a little so a fast wheel does not stutter.
+// Encoded with a dense keyframe interval, so a seek lands within a frame or two.
+// =============================================================================
+const film = (() => {
+  const host = $('#labFilm'), video = host && host.querySelector('video');
+  let ready = false, target = 0, current = 0, raf = 0, armed = false;
+  const src = () => (PHONE.matches && video.dataset.srcMobile) || video.dataset.src;
+  // Fetched whole and handed to the element as a blob: a scrubbed clip is seeked all over, and
+  // a same-origin blob seeks without range requests, which not every host answers well.
+  let loadedFor = '';
+  function load() {
+    if (!video || REDUCED) return;
+    const want = src(); if (want === loadedFor) return; loadedFor = want; ready = false;
+    fetch(want).then((r) => { if (!r.ok) throw new Error(r.status); return r.blob(); }).then((b) => {
+      const prev = video.src; video.src = URL.createObjectURL(b); video.load();
+      if (prev && prev.startsWith('blob:')) URL.revokeObjectURL(prev);
+      video.addEventListener('loadedmetadata', () => {
+        ready = true; host.classList.add('is-live'); host.closest('[data-sc-act]')?.classList.add('sc-has-clip');
+        current = -1; step();
+      }, { once: true });
+    }).catch((e) => { loadedFor = ''; console.warn('film did not load', e); });
+  }
+  function step() {
+    raf = 0;
+    if (!ready || !video.duration) return;
+    const t = target * Math.max(0, video.duration - 0.05);
+    current = current < 0 ? t : (INSTANT ? t : lerp(current, t, 0.2));
+    if (Math.abs(video.currentTime - current) > 0.02 && !video.seeking) { try { video.currentTime = current; } catch { /* not seekable yet */ } }
+    if (Math.abs(current - t) > 0.005) raf = requestAnimationFrame(step);
+  }
+  return {
+    arm(sel) {
+      if (!video || armed) return; armed = true;
+      // Fetch when the chapter is a viewport away; a reader who never scrolls never pays for it.
+      ScrollTrigger.create({ trigger: sel, start: 'top 200%', once: true, onEnter: load });
+      addEventListener('resize', () => { if (loadedFor && loadedFor !== src()) load(); });
+    },
+    seek(p) { target = clamp01(p); if (ready && !raf) raf = requestAnimationFrame(step); },
+    get ready() { return ready; },
+  };
+})();
+
+// =============================================================================
 // The score. One gsap.context, rebuilt whole on a language switch because line
 // splits, directions and measures all change together.
 // =============================================================================
@@ -122,9 +166,13 @@ function buildScroll() {
     }
     ScrollTrigger.create({ trigger: '#top', start: 'top top', end: 'bottom top', onUpdate: (s) => world.set('top', s.progress), onToggle: (s) => s.isActive && world.set('top', s.progress) });
 
-    // ---- 01 lab: pinned. Title lines rise, the question lands, the figures count.
+    // ---- 01 lab: pinned. The film scrubs under the wheel; title lines rise, the question lands, the figures count.
     {
       const lines = splitLines($('#lab'));
+      film.arm('#lab');
+      // The playhead maps across the chapter's whole visible life, sliding in and sliding out
+      // included, so the film is never a still while the page moves.
+      ScrollTrigger.create({ trigger: '#lab', start: 'top bottom', end: 'bottom top', onUpdate: (s) => film.seek(s.progress), onToggle: (s) => s.isActive && film.seek(s.progress) });
       const counters = $$('#lab .num[data-count]').map((el) => ({ el, to: parseFloat(el.dataset.count), dec: parseInt(el.dataset.dec || '0', 10), v: 0 }));
       const tl = gsap.timeline({ scrollTrigger: {
         trigger: '#lab', start: 'top top', end: 'bottom bottom', pin: '#lab .chapter__pin', pinSpacing: false, scrub, anticipatePin: 1,
@@ -512,7 +560,7 @@ function createWorld(THREE) {
   // fx, fy are fractions of the visible half-width and half-height at the object's depth.
   const POSE = {
     top:    { d: { fx: 0.30, fy: -0.06, s: 0.80, rz: 0.36, rx: 0.10 }, p: { fx: 0.34, fy: 0.30, s: 0.45, rz: 0.30, rx: 0.06 } },
-    lab:    { d: { fx: -0.34, fy: 0.02, s: 0.80, rz: -0.30, rx: 0.06 }, p: { fx: 0.62, fy: -0.15, s: 0.50, rz: -0.36, rx: 0.06 } },
+    lab:    { d: { fx: -0.90, fy: 0.90, s: 0.001, rz: -0.30, rx: 0.06 }, p: { fx: 0.90, fy: 0.90, s: 0.001, rz: -0.36, rx: 0.06 } },
     tests:  { d: { fx: 0.40, fy: 0.34, s: 0.40, rz: 0.95, rx: 0.30 }, p: { fx: 0.44, fy: 0.42, s: 0.28, rz: 0.95, rx: 0.30 } },
     method: { d: { fx: 0.24, fy: 0.00, s: 0.92, rz: 0.00, rx: 0.00 }, p: { fx: 0.26, fy: 0.12, s: 0.56, rz: 0.00, rx: 0.00 } },
     people: { d: { fx: 0.40, fy: 0.30, s: 0.66, rz: 0.62, rx: 0.12, dy: 0.9 }, p: { fx: 0.64, fy: 0.30, s: 0.42, rz: 0.62, rx: 0.12, dy: 0.9 } },

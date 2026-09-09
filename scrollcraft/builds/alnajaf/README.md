@@ -16,10 +16,20 @@ render/           build and verification scripts (see below)
 lab/              verification output. Not tracked.
 ```
 
-There is no video and no image on the page. The object behind the chapters is
-rendered live: a double helix of porcelain beads on steel rungs, posed per
-chapter, opened and lit in the third. It costs nothing to generate and it
-covers whatever viewport it is given, because it is drawn into the viewport.
+The object behind the chapters is rendered live: a double helix of porcelain
+beads on steel rungs, posed per chapter, opened and lit in the third. It
+costs nothing to generate and covers whatever viewport it is given, because it
+is drawn into the viewport.
+
+Chapter 01 carries the one film on the page: a single continuous shot through
+the laboratory, full-bleed under the copy, scrubbed by the scroll across the
+chapter's whole visible life. `assets/lab.mp4` (desktop) and `assets/lab-m.mp4`
+(phone, portrait crop) are dense-keyframe encodes made with the skill's
+`encode.sh`; the posters beside them are their first frames. The clip is fetched
+only when the chapter is a viewport away, as a blob, and never under reduced
+motion. **The clips currently in `assets/` are placeholders**: a camera push
+over the owner's still (`source/aisle.png`) rendered by `tools/stillmotion.mjs`.
+They are replaced by the Seedance take once it exists; nothing else changes.
 
 ## How it moves
 

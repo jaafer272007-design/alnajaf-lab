@@ -264,7 +264,25 @@ html[dir="rtl"] .scrollcue i::after { animation-name: cue-rtl; }
 .chapter__head .prose { grid-column: 2; }
 
 /* 01 lab */
-.chapter--lab .chapter__pin { grid-template-rows: auto 1fr; }
+.chapter--lab .chapter__pin { grid-template-rows: auto 1fr; position: relative; isolation: isolate; }
+.film { position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--gutter)); right: calc(-1 * var(--gutter)); z-index: -1; overflow: hidden; background: var(--g2); }
+.film__poster, .film__clip { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; }
+.film__clip { opacity: 0; transition: opacity 0.5s var(--ease); }
+.film.is-live .film__clip { opacity: 1; }
+.film__plate { position: absolute; pointer-events: none; }
+.film__plate--head { left: 0; top: 0; width: 66%; height: 56%; background: radial-gradient(ellipse at 18% 18%, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.9) 42%, rgba(243, 244, 242, 0) 74%); }
+.film__plate--body { right: 0; bottom: 0; width: 70%; height: 66%; background: radial-gradient(ellipse at 82% 84%, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.92) 46%, rgba(243, 244, 242, 0) 78%); }
+html[dir="rtl"] .film__plate--head { left: auto; right: 0; background: radial-gradient(ellipse at 82% 18%, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.9) 42%, rgba(243, 244, 242, 0) 74%); }
+html[dir="rtl"] .film__plate--body { right: auto; left: 0; background: radial-gradient(ellipse at 18% 84%, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.92) 46%, rgba(243, 244, 242, 0) 78%); }
+@media (max-width: 860px) {
+  /* A phone holds the copy top and bottom, so the film is seen through the middle: the plates
+     stop where the copy stops instead of meeting in the centre. */
+  .film__plate--head { width: 100%; height: 36%; background: linear-gradient(180deg, rgba(243, 244, 242, 0.96) 0%, rgba(243, 244, 242, 0.88) 55%, rgba(243, 244, 242, 0) 100%); }
+  .film__plate--body { width: 100%; height: 58%; background: linear-gradient(0deg, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.92) 62%, rgba(243, 244, 242, 0) 100%); }
+  html[dir="rtl"] .film__plate--head, html[dir="rtl"] .film__plate--body { left: 0; right: 0; }
+  .film__poster, .film__clip { object-position: 50% 45%; }
+}
+@media (prefers-reduced-motion: reduce) { .film__clip { display: none; } }
 .lab__body { align-self: end; justify-self: end; display: grid; gap: 1.25rem; max-width: min(46rem, 60vw); }
 .lab__q { color: var(--accent); }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 1.25rem; border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 0.5rem; }
@@ -447,6 +465,7 @@ html.has-cursor input, html.has-cursor textarea, html.has-cursor select { cursor
   .chapter__head .prose { grid-column: 1; }
   .lab__body { max-width: none; justify-self: stretch; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 1rem; }
+  .chapter__pin { padding-bottom: 5.5rem; }  /* the dock sits on the bottom edge */
   .tests__pin { min-height: 0; padding-bottom: 0; }
   .rail { margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .rail::-webkit-scrollbar { display: none; }
