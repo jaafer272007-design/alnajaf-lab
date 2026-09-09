@@ -70,23 +70,9 @@ function scrollToEl(sel) {
   const y = el.getBoundingClientRect().top + window.scrollY;
   window.scrollTo({ top: y, behavior: INSTANT ? 'instant' : 'smooth' });
 }
-const menu = $('#menu'), burger = $('#burger');
-function closeMenu() {
-  if (menu.hidden) return;
-  menu.hidden = true; burger.setAttribute('aria-expanded', 'false'); html.classList.remove('menu-open');
-  if (smoother) smoother.paused(false); else document.body.style.overflow = '';
-}
-burger.addEventListener('click', () => {
-  const open = menu.hidden;
-  if (!open) return closeMenu();
-  menu.hidden = false; burger.setAttribute('aria-expanded', 'true'); html.classList.add('menu-open');
-  if (smoother) smoother.paused(true); else document.body.style.overflow = 'hidden';
-});
-addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 document.addEventListener('click', (e) => {
   const a = e.target.closest('[data-to]'); if (!a) return;
   e.preventDefault();
-  closeMenu();
   if (a.dataset.dept) { const s = $('#f-dept'); if (s) s.value = a.dataset.dept; }
   scrollToEl(a.dataset.to);
   if (a.dataset.to === '#visit' && a.dataset.dept) setTimeout(() => $('#f-name')?.focus({ preventScroll: true }), INSTANT ? 0 : 1100);
@@ -232,14 +218,62 @@ function buildScroll() {
       }
     }
 
-    // ---- the index in the bar follows the chapter under the middle of the screen
-    ['lab', 'tests', 'method', 'people', 'visit'].forEach((id) => {
-      const link = $(`.index a[href="#${id}"]`); if (!link) return;
+    // ---- the dock marks the chapter under the middle of the screen
+    ['top', 'lab', 'tests', 'method', 'people', 'visit'].forEach((id) => {
+      const link = $(`.dock__item[href="#${id}"]`); if (!link) return;
       ScrollTrigger.create({ trigger: '#' + id, start: 'top 50%', end: 'bottom 50%', toggleClass: { targets: link, className: 'is-active' } });
     });
   });
   ScrollTrigger.refresh();
 }
+
+// =============================================================================
+// The dock. Each item's width follows the pointer's distance on a spring, and the panel makes
+// room. A port of the framer-motion Dock (mass 0.1, stiffness 150, damping 12) to plain code.
+// =============================================================================
+(function dock() {
+  const panel = $('#dockPanel'); if (!panel) return;
+  const items = $$('.dock__item', panel);
+  const BASE = 40, MAG = 68, DIST = 140, PANEL = 54;
+  const spring = { mass: 0.1, stiffness: 150, damping: 12 };
+  const springs = items.map(() => ({ x: BASE, v: 0, t: BASE }));
+  const ph = { x: PANEL, v: 0, t: PANEL };
+  let mouseX = Infinity, running = false, last = 0;
+  // Integrated in small fixed substeps: at this stiffness a whole slow frame in one Euler step
+  // overshoots and rings instead of settling.
+  const H = 1 / 240;
+  const step = (sp, dt) => {
+    for (let n = Math.ceil(dt / H); n > 0; n--) {
+      const a = (-spring.stiffness * (sp.x - sp.t) - spring.damping * sp.v) / spring.mass;
+      sp.v += a * H; sp.x += sp.v * H;
+    }
+    if (Math.abs(sp.v) < 0.5 && Math.abs(sp.x - sp.t) < 0.3) { sp.x = sp.t; sp.v = 0; return false; }
+    return true;
+  };
+  const tick = (now) => {
+    const dt = Math.min(0.25, (now - last) / 1000 || 0.016); last = now;
+    let live = false;
+    items.forEach((el, i) => {
+      const r = el.getBoundingClientRect();
+      const d = mouseX === Infinity ? Infinity : mouseX - (r.left + r.width / 2);
+      const k = Math.max(0, 1 - Math.abs(d) / DIST);
+      springs[i].t = BASE + (MAG - BASE) * k;
+      if (step(springs[i], dt)) live = true;
+      el.style.setProperty('--w', springs[i].x.toFixed(2) + 'px');
+    });
+    ph.t = mouseX === Infinity ? PANEL : Math.max(PANEL, MAG + 14);
+    if (step(ph, dt)) live = true;
+    panel.style.setProperty('--dock-h', ph.x.toFixed(2) + 'px');
+    running = live; if (live) requestAnimationFrame(tick);
+  };
+  const wake = () => { if (!running) { running = true; last = performance.now(); requestAnimationFrame(tick); } };
+  if (FINE.matches && !REDUCED) {
+    panel.addEventListener('pointermove', (e) => { mouseX = e.clientX; wake(); });
+    panel.addEventListener('pointerleave', () => { mouseX = Infinity; wake(); });
+  }
+  items.forEach((el) => { el.style.setProperty('--w', BASE + 'px'); });
+  panel.style.setProperty('--dock-h', PANEL + 'px');
+})();
 
 // =============================================================================
 // Pointer: magnetic controls, tilting cards, and the cursor. Fine pointers only.
@@ -251,8 +285,8 @@ if (FINE.matches && !REDUCED) {
     el.addEventListener('pointermove', (e) => {
       const r = el.getBoundingClientRect();
       const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
-      gsap.to(el, { x: dx * 0.32, y: dy * 0.32, duration: 0.5, overwrite: 'auto' });
-      if (label) gsap.to(label, { x: dx * 0.12, y: dy * 0.12, duration: 0.5, overwrite: 'auto' });
+      gsap.to(el, { x: dx * 0.22, y: dy * 0.22, duration: 0.5, overwrite: 'auto' });
+      if (label) gsap.to(label, { x: dx * 0.08, y: dy * 0.08, duration: 0.5, overwrite: 'auto' });
     });
     el.addEventListener('pointerleave', () => {
       // A soft return, not a spring: a control that swings back past its rest position can
@@ -278,7 +312,7 @@ if (FINE.matches && !REDUCED) {
     if (!html.classList.contains('has-cursor')) { html.classList.add('has-cursor'); pos.rx = e.clientX; pos.ry = e.clientY; }
     pos.x = e.clientX; pos.y = e.clientY;
     const h = e.target.closest?.('[data-hover]');
-    cur.classList.toggle('is-hover', !!h && h.dataset.hover !== 'drag');
+    cur.classList.toggle('is-hover', !!h && h.dataset.hover !== 'drag' && h.dataset.hover !== 'dock');
     cur.classList.toggle('is-drag', !!h && h.dataset.hover === 'drag');
     if (h && h.dataset.hover === 'drag') lab.textContent = html.lang === 'ar' ? 'مرّر' : 'Scroll';
   }, { passive: true });

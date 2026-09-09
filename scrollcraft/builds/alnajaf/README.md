@@ -32,9 +32,16 @@ covers whatever viewport it is given, because it is drawn into the viewport.
 - The ground crossfades to night on the way into chapter 03 and back on the
   way out. The ground eases; the ink flips at the midpoint, so the two never
   meet grey on grey.
-- Everything hoverable answers: magnetic buttons with a fill sweep, tilting
-  cards, a black band on instrument rows, lifting consultant cards, sliding
-  arrows on contact rows, an index underline, a cursor that grows on links.
+- Navigation is a dock: six chapter icons in a pill that widen on a spring as
+  the pointer nears them (a plain-JS port of the framer-motion Dock, same
+  mass, stiffness and damping), with a label that rises on hover and a red dot
+  under the current chapter. Top centre on desktop, bottom edge on phones.
+- Controls are soft glossy pills: a lit top edge, a shadow that lifts on hover
+  and sinks on press, an icon that nudges. The WhatsApp send is the same pill
+  in signal red.
+- Everything else hoverable answers: magnetic buttons, tilting cards, a black
+  band on instrument rows, lifting consultant cards, sliding arrows on contact
+  rows, a cursor that grows on links.
 - A browser that announces automation (`navigator.webdriver`) gets no smoothing
   and instant scrubs, so every screenshot is the frame for its position.
 - Reduced motion: no smoother, instant scrubs, no idle spin, no reveals. No

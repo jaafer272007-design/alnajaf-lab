@@ -673,3 +673,31 @@ WebGL here draws at a few frames a second; the scene is 168 instanced beads
 and 48 rungs and should hold 60 on any phone from the last five years), a
 real phone's touch scrolling, and the Google Fonts and cdnjs fetches the
 artifact makes from the visitor's network.
+
+
+---
+
+## Third pass: the dock and the controls
+
+Owner, verbatim: "i still dont like the buttons ,make them more interactive and
+hover some thing like the reference picture", and for the bar, a framer-motion
+Dock component "but use our own sections like we dont have theme or email so
+dont add it".
+
+Authored, from those two instructions:
+
+- **Buttons** are now soft white pills with a lit top edge, a shadow that
+  lifts on hover and sinks on press, and an icon that nudges toward the
+  accent. The WhatsApp send is the same shape in signal red. The language
+  switch and the cards moved to the same rounded scale so the page has one
+  radius family again.
+- **The dock** replaces the index and the phone menu. Six items, our own:
+  Home, Lab, Tests, Method, People, Book. It is a plain-JavaScript port of
+  the React component the owner pasted, with the same spring (mass 0.1,
+  stiffness 150, damping 12), the same distance falloff, a label that rises
+  on hover, and a red dot under the current chapter. It sits top centre on
+  desktop and on the bottom edge on phones, where it replaces the burger.
+- The walkthrough videos the owner called cheap were screen recordings made
+  at a few frames a second in a software renderer, not the page. No video is
+  on the page. A real film for the hero is a separate decision; see the
+  reply that accompanies this pass.

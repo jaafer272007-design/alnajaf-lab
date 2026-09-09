@@ -14,7 +14,7 @@ const errors = [];
 // ScrollSmoother glides the content toward the native scroll position for about a second after
 // any jump (a click on the index, the browser scrolling a focused field into view). Measuring a
 // control mid-glide gives a stale box, so wait for the content to stop moving first.
-const settle = async (page) => { let last = null; for (let i = 0; i < 40; i++) { const t = await page.evaluate(() => document.querySelector('#smooth-content').style.transform || scrollY); if (t === last) return; last = t; await page.waitForTimeout(120); } };
+const settle = async (page) => { let last = null, same = 0; for (let i = 0; i < 40; i++) { const t = await page.evaluate(() => (document.querySelector('#smooth-content').style.transform || '') + '|' + scrollY); if (t === last) { if (++same >= 3) return; } else { same = 0; last = t; } await page.waitForTimeout(250); } };
 
 // ---------------- desktop ----------------
 {
@@ -41,23 +41,30 @@ const settle = async (page) => { let last = null; for (let i = 0; i < 40; i++) {
   check('language persisted', await page.evaluate(() => localStorage.getItem('najaf-lang') === 'en'));
 
   // index navigation through the smoother
-  await page.click('.index a[href="#method"]'); await page.waitForTimeout(2200); await settle(page);
+  await page.click('.dock__item[href="#method"]'); await page.waitForTimeout(2200); await settle(page);
   const m = await page.evaluate(() => { const r = document.querySelector('#method .chapter__pin').getBoundingClientRect(); return { top: Math.round(r.top), night: getComputedStyle(document.documentElement).getPropertyValue('--g').trim() }; });
   check('index link lands on the method chapter', Math.abs(m.top) < 4, `pin top ${m.top}px, ground ${m.night}`);
   check('method chapter is night', /^(#0a0e17|rgba?\(10, ?14, ?23(, ?1)?\))$/.test(m.night), m.night);
-  check('index marks the active chapter', await page.evaluate(() => document.querySelector('.index a[href="#method"]').classList.contains('is-active')));
+    check('dock marks the active chapter', await page.evaluate(() => document.querySelector('.dock__item[href="#method"]').classList.contains('is-active')));
+  const dw = await page.$('.dock__item[href="#lab"]'); const db = await dw.boundingBox();
+  await page.mouse.move(db.x + db.width / 2, db.y + db.height / 2); await page.waitForTimeout(1600);
+  const grown = await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.dock__item[href="#lab"]')).width));
+  check('dock item magnifies under the pointer', grown > 56, grown.toFixed(1) + 'px');
+  check('dock label rises on hover', await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.dock__item[href="#lab"] .dock__label')).opacity) > 0.9));
+  await page.mouse.move(700, 500); await page.waitForTimeout(1600);
+  check('dock item relaxes when the pointer leaves', await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.dock__item[href="#lab"]')).width) < 44));
 
   // hover: tilt and magnet
-  await page.click('.index a[href="#tests"]'); await page.waitForTimeout(2200);
+  await page.click('.dock__item[href="#tests"]'); await page.waitForTimeout(2200); await settle(page);
   const card = await page.$('.card[data-dept="chem"]'); const cb = await card.boundingBox();
   await page.mouse.move(cb.x + cb.width * 0.85, cb.y + cb.height * 0.2); await page.waitForTimeout(500);
   check('card tilts under the pointer', await page.evaluate(() => /matrix3d/.test(getComputedStyle(document.querySelector('.card[data-dept="chem"]')).transform)));
   check('cursor reads Scroll over the rail', await page.evaluate(() => document.querySelector('#cursor').classList.contains('is-drag') && document.querySelector('.cursor__label').textContent === 'Scroll'));
-  await page.click('.index a[href="#top"]').catch(() => {});
+  await page.click('.dock__item[href="#top"]').catch(() => {});
   await page.click('.brand'); await page.waitForTimeout(1500); await settle(page);
-  const btn = await page.$('.hero .btn--ink'); const bb = await btn.boundingBox();
-  await page.mouse.move(bb.x + bb.width - 6, bb.y + 4); await page.waitForTimeout(500);
-  const mag = await page.evaluate(() => getComputedStyle(document.querySelector('.hero .btn--ink')).transform);
+  const btn = await page.$('.hero .btn--primary'); const bb = await btn.boundingBox();
+  await page.mouse.move(bb.x + bb.width - 26, bb.y + bb.height / 2 - 8); await page.waitForTimeout(600);
+  const mag = await page.evaluate(() => getComputedStyle(document.querySelector('.hero .btn--primary')).transform);
   check('button is magnetic', mag !== 'none' && !/^matrix\(1, 0, 0, 1, 0, 0\)$/.test(mag), mag);
 
   // the rail travels far enough that the last card arrives fully in view at the pin's end
@@ -90,7 +97,8 @@ const settle = async (page) => { let last = null; for (let i = 0; i < 40; i++) {
   await page.keyboard.press('Tab');
   const second = await page.evaluate(() => document.activeElement.className);
   check('tab order: skip link, then the brand', first === 'skip' && second === 'brand', `${first} > ${second}`);
-  await page.evaluate(() => document.querySelector('.skip').focus()); await page.waitForTimeout(400);
+  await page.evaluate(() => document.querySelector('.skip').focus());
+  await page.waitForFunction(() => document.querySelector('.skip').getBoundingClientRect().top >= 0, null, { timeout: 4000 }).catch(() => {});
   check('skip link becomes visible on focus', await page.evaluate(() => document.querySelector('.skip').getBoundingClientRect().top >= 0));
   await page.close();
 }
@@ -101,15 +109,14 @@ const settle = async (page) => { let last = null; for (let i = 0; i < 40; i++) {
   page.on('pageerror', (e) => errors.push('phone pageerror: ' + e));
   await page.goto(URL, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('html.sc-ready'); await page.waitForTimeout(1200);
-  check('phone hides the index and shows the burger', await page.evaluate(() => getComputedStyle(document.querySelector('.index')).display === 'none' && getComputedStyle(document.querySelector('#burger')).display !== 'none'));
-  await page.click('#burger'); await page.waitForTimeout(300);
-  check('burger opens the menu', await page.evaluate(() => !document.querySelector('#menu').hidden && document.querySelector('#burger').getAttribute('aria-expanded') === 'true'));
-  await page.click('#menu a[href="#method"]'); await page.waitForTimeout(2200);
-  check('menu link closes the menu and lands', await page.evaluate(() => document.querySelector('#menu').hidden && Math.abs(document.querySelector('#method .chapter__pin').getBoundingClientRect().top) < 4));
-  await page.click('#burger'); await page.waitForTimeout(200); await page.click('#menu a[href="#tests"]'); await page.waitForTimeout(2200);
+  check('phone puts the dock at the bottom', await page.evaluate(() => { const r = document.querySelector('#dock').getBoundingClientRect(); return r.top > innerHeight * 0.8 && r.bottom <= innerHeight; }));
+  check('phone hides the bar button, keeps brand and language', await page.evaluate(() => getComputedStyle(document.querySelector('.bar__book')).display === 'none' && getComputedStyle(document.querySelector('#lang')).display !== 'none'));
+  await page.tap('.dock__item[href="#method"]'); await page.waitForTimeout(2200);
+  check('dock tap lands on the chapter', await page.evaluate(() => Math.abs(document.querySelector('#method .chapter__pin').getBoundingClientRect().top) < 4));
+  await page.tap('.dock__item[href="#tests"]'); await page.waitForTimeout(2200);
   check('phone rail scrolls sideways natively', await page.evaluate(() => { const r = document.querySelector('#rail'); return getComputedStyle(r).overflowX === 'auto' && r.scrollWidth > r.clientWidth; }));
   check('no horizontal page overflow', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
-  const small = await page.evaluate(() => [...document.querySelectorAll('.btn, .lang__opt, #burger, .card__go, a.contact__row, .foot__top, .scrollcue')].filter((el) => el.getBoundingClientRect().height > 0 && el.getBoundingClientRect().height < 32).map((el) => el.className + ' ' + Math.round(el.getBoundingClientRect().height)));
+  const small = await page.evaluate(() => [...document.querySelectorAll('.btn, .lang__opt, .dock__item, .card__go, a.contact__row, .foot__top, .scrollcue')].filter((el) => el.getBoundingClientRect().height > 0 && el.getBoundingClientRect().height < 32).map((el) => el.className + ' ' + Math.round(el.getBoundingClientRect().height)));
   check('touch targets at least 32px tall', small.length === 0, small.join(', '));
   await page.close();
 }
