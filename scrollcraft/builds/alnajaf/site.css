@@ -30,7 +30,7 @@
   --bar-h: 4.25rem;
   --radius: 18px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --t-hero: clamp(3.2rem, min(12.5vw, 24svh), 13rem);
+  --t-hero: clamp(3rem, min(9.6vw, 16.5svh), 10.5rem);
   --t-xl: clamp(3rem, min(9vw, 20svh), 8.5rem);
   --t-lg: clamp(2.2rem, min(5.6vw, 12svh), 5.4rem);
   --t-md: clamp(1.5rem, 2.6vw, 2.4rem);
@@ -45,7 +45,7 @@ html[lang="ar"] {
   --font-text: "IBM Plex Sans Arabic", Tahoma, Arial, system-ui, sans-serif;
   --stretch: 100%;
   --display-weight: 800;
-  --t-hero: clamp(2.6rem, min(10.5vw, 20svh), 10.5rem);
+  --t-hero: clamp(2.4rem, min(8vw, 13.5svh), 8.5rem);
   --t-xl: clamp(2.6rem, min(8vw, 17svh), 7.5rem);
   --t-lg: clamp(1.9rem, min(4.8vw, 11svh), 4.6rem);
   --measure: 52ch;
@@ -229,14 +229,17 @@ html[lang="ar"] .label, html[lang="ar"] .eyebrow { font-family: var(--font-text)
   will-change: transform, opacity;
 }
 .hero__eyebrow { align-self: start; justify-self: start; max-width: 100%; }
-.hero__title { align-self: center; justify-self: start; max-width: 100%; }
+.hero__title { align-self: center; justify-self: start; max-width: min(100%, 58vw); }
 .hero__title .line { display: block; will-change: transform; }
 .hero__title .line[data-line="2"] { padding-inline-start: 0.16em; }
-.hero__title .line[data-line="3"] { color: var(--accent); }
-.hero__foot { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.25rem 3rem; padding-bottom: 1.25rem; }
+.hero__title .line--accent { color: var(--accent); }
+.hero__title .line[data-line="4"] { padding-inline-start: 0.1em; }
+.hero__foot { display: flex; flex-wrap: wrap; align-items: end; justify-content: flex-start; gap: 1.25rem 3rem; padding-bottom: 1.25rem; padding-inline-end: 12rem; }
 .scrollcue {
   position: absolute; inset-inline-end: var(--gutter); bottom: 1.2rem;
-  display: inline-flex; align-items: center; gap: 0.6rem; min-height: 2.25rem;
+  display: inline-flex; align-items: center; gap: 0.6rem; min-height: 2.25rem; padding: 0 0.95rem;
+  border-radius: 999px; background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(18, 22, 27, 0.06);
+  box-shadow: 0 1px 0 #ffffff inset, 0 8px 20px -12px rgba(18, 22, 27, 0.3);
   font-family: var(--font-mono); font-size: var(--t-label); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink2);
 }
 html[lang="ar"] .scrollcue { font-family: var(--font-text); letter-spacing: 0; font-size: 0.8rem; }
@@ -267,12 +270,12 @@ html[dir="rtl"] .scrollcue i::after { animation-name: cue-rtl; }
 .film__plate { position: absolute; pointer-events: none; }
 /* Plates are near solid across the copy and fall off only past it: the film has dark
    instruments and near-white walls, and the type has to clear both. */
-/* Under the title the film is a soft presence; it comes up to full strength the moment the
-   title steps aside, which is the walk-in beat. The title runs most of the width, so the plate does too. */
-.film__plate--hero { left: 0; top: 0; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.95) 70%, rgba(243, 244, 242, 0.88) 88%, rgba(243, 244, 242, 0.62) 100%); }
+/* The title holds one side of the frame and its plate covers only that side, so the aisle
+   stands at full strength on the other: the first thing a visitor sees is the film. */
+.film__plate--hero { left: 0; top: 0; width: 62%; height: 100%; background: linear-gradient(90deg, rgba(243, 244, 242, 0.95) 0%, rgba(243, 244, 242, 0.92) 50%, rgba(243, 244, 242, 0.7) 76%, rgba(243, 244, 242, 0) 100%); }
 .film__plate--head { left: 0; top: 0; width: 70%; height: 58%; opacity: 0; background: radial-gradient(ellipse at 16% 14%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.95) 48%, rgba(243, 244, 242, 0.7) 70%, rgba(243, 244, 242, 0) 90%); }
 .film__plate--body { right: 0; bottom: 0; width: 72%; height: 70%; opacity: 0; background: radial-gradient(ellipse at 84% 88%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.96) 50%, rgba(243, 244, 242, 0.7) 72%, rgba(243, 244, 242, 0) 92%); }
-html[dir="rtl"] .film__plate--hero { background: linear-gradient(270deg, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.95) 70%, rgba(243, 244, 242, 0.88) 88%, rgba(243, 244, 242, 0.62) 100%); }
+html[dir="rtl"] .film__plate--hero { left: auto; right: 0; background: linear-gradient(270deg, rgba(243, 244, 242, 0.95) 0%, rgba(243, 244, 242, 0.92) 50%, rgba(243, 244, 242, 0.7) 76%, rgba(243, 244, 242, 0) 100%); }
 html[dir="rtl"] .film__plate--head { left: auto; right: 0; background: radial-gradient(ellipse at 84% 14%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.95) 48%, rgba(243, 244, 242, 0.7) 70%, rgba(243, 244, 242, 0) 90%); }
 html[dir="rtl"] .film__plate--body { right: auto; left: 0; background: radial-gradient(ellipse at 16% 88%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.96) 50%, rgba(243, 244, 242, 0.7) 72%, rgba(243, 244, 242, 0) 92%); }
 .labcopy {
@@ -294,7 +297,13 @@ html[lang="ar"] .stat dt { font-family: var(--font-text); letter-spacing: 0; fon
 .stat:hover { transform: translateY(-4px); }
 .stat:hover dd { color: var(--accent); }
 @media (max-width: 860px) {
-  .film__plate--hero { width: 100%; height: 100%; background: linear-gradient(180deg, rgba(243, 244, 242, 0.92) 0%, rgba(243, 244, 242, 0.95) 45%, rgba(243, 244, 242, 0.97) 100%); }
+  /* phone: the film owns the top third; the copy sits low on a plate that starts above the title */
+  .film__plate--hero { width: 100%; height: 100%; background: linear-gradient(180deg, rgba(243, 244, 242, 0) 0%, rgba(243, 244, 242, 0) 16%, rgba(243, 244, 242, 0.9) 33%, rgba(243, 244, 242, 0.94) 100%); }
+  .hero__title { align-self: end; }
+  :root { --t-hero: clamp(3.4rem, 13.5vw, 4.6rem); }
+  html[lang="ar"] { --t-hero: clamp(2.8rem, 11vw, 4rem); }
+  .cta .btn { --pad: 1.05rem; }
+  .hero__eyebrow { padding: 0.4rem 0.7rem; border-radius: 12px; background: rgba(255, 255, 255, 0.84); border: 1px solid rgba(18, 22, 27, 0.06); box-shadow: 0 1px 0 #ffffff inset, 0 8px 20px -12px rgba(18, 22, 27, 0.3); }
   .film__plate--head { width: 100%; height: 52%; background: linear-gradient(180deg, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.95) 70%, rgba(243, 244, 242, 0) 100%); }
   .film__plate--body { width: 100%; height: 68%; background: linear-gradient(0deg, rgba(243, 244, 242, 0.99) 0%, rgba(243, 244, 242, 0.98) 82%, rgba(243, 244, 242, 0) 100%); }
   html[dir="rtl"] .film__plate--hero, html[dir="rtl"] .film__plate--head, html[dir="rtl"] .film__plate--body { left: 0; right: 0; }
@@ -492,7 +501,7 @@ html.has-cursor input, html.has-cursor textarea, html.has-cursor select { cursor
   .bar { grid-template-columns: 1fr auto; }
   .brand__name { display: none; }
   .hero { padding-bottom: 4rem; }
-  .hero__foot { padding-bottom: 0; }
+  .hero__foot { padding-bottom: 0; padding-inline-end: 0; }
   .scrollcue { display: none; } /* the dock sits there, and a thumb already knows to scroll */
   .chapter__head { grid-template-columns: 1fr; gap: 0.6rem; }
   .chapter__num { min-width: 0; width: 3rem; }

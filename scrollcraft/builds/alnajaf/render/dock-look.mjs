@@ -1,0 +1,24 @@
+import { chromium } from 'playwright-core';
+const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
+await page.goto('http://localhost:4700/index.html', { waitUntil: 'domcontentloaded' });
+await page.waitForSelector('html.sc-ready', { timeout: 15000 });
+await page.evaluate(() => document.fonts.ready);
+await page.waitForTimeout(800);
+const widths = () => page.evaluate(() => [...document.querySelectorAll('.dock__item')].map((el) => el.getBoundingClientRect().width.toFixed(0)).join(' '));
+const dockBox = await page.evaluate(() => { const r = document.querySelector('.dock').getBoundingClientRect(); return { x: r.left - 80, y: 0, width: r.width + 160, height: 130 }; });
+const shot = (n) => page.screenshot({ path: `lab/dock/${n}.png`, clip: dockBox });
+console.log('rest      ', await widths());
+await shot('0-rest');
+const b = await (await page.$('.dock__item[href="#tests"]')).boundingBox();
+await page.mouse.move(b.x + b.width / 2, b.y + 200);
+await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 12 });
+for (const t of [60, 120, 250, 500]) { await page.waitForTimeout(t === 60 ? 60 : t - (t === 120 ? 60 : t === 250 ? 120 : 250)); console.log(`tests +${t}ms `, await widths()); await shot(`1-tests-${t}`); }
+const c = await (await page.$('.dock__item[href="#method"]')).boundingBox();
+await page.mouse.move(c.x + c.width / 2, c.y + c.height / 2, { steps: 10 });
+await page.waitForTimeout(500);
+console.log('method     ', await widths()); await shot('2-method');
+await page.mouse.move(c.x + c.width / 2, 400, { steps: 6 });
+await page.waitForTimeout(700);
+console.log('left       ', await widths()); await shot('3-left');
+await browser.close();

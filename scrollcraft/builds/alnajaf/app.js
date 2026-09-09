@@ -188,6 +188,7 @@ function buildScroll() {
         tl.to(heroLines[0], { xPercent: -10 * dir, ease: 'none', duration: 0.3 }, 0)
           .to(heroLines[1], { xPercent: 7 * dir, ease: 'none', duration: 0.3 }, 0)
           .to(heroLines[2], { xPercent: -4 * dir, ease: 'none', duration: 0.3 }, 0)
+          .to(heroLines[3], { xPercent: 5 * dir, ease: 'none', duration: 0.3 }, 0)
           .to('.scrollcue', { opacity: 0, ease: 'none', duration: 0.08 }, 0);
       }
       // A plate is in place before its copy shows and leaves only after the copy has gone,
@@ -304,7 +305,7 @@ function buildScroll() {
 (function dock() {
   const panel = $('#dockPanel'); if (!panel) return;
   const items = $$('.dock__item', panel);
-  const BASE = 40, MAG = 76, DIST = 130, PANEL = 54;
+  const BASE = 40, MAG = 84, DIST = 150, PANEL = 54;
   const spring = { mass: 0.1, stiffness: 170, damping: 10 };
   const springs = items.map(() => ({ x: BASE, v: 0, t: BASE }));
   const ph = { x: PANEL, v: 0, t: PANEL };
@@ -327,7 +328,7 @@ function buildScroll() {
       const r = el.getBoundingClientRect();
       const d = mouseX === Infinity ? Infinity : mouseX - (r.left + r.width / 2);
       const k = Math.max(0, 1 - Math.abs(d) / DIST);
-      springs[i].t = BASE + (MAG - BASE) * k * k;
+      springs[i].t = BASE + (MAG - BASE) * Math.pow(k, 1.6);
       if (step(springs[i], dt)) live = true;
       el.style.setProperty('--w', springs[i].x.toFixed(2) + 'px');
     });
@@ -337,9 +338,12 @@ function buildScroll() {
     running = live; if (live) requestAnimationFrame(tick);
   };
   const wake = () => { if (!running) { running = true; last = performance.now(); requestAnimationFrame(tick); } };
-  if (FINE.matches && !REDUCED) {
-    panel.addEventListener('pointermove', (e) => { mouseX = e.clientX; wake(); });
+  // Any mouse or pen drives it; a touch-capable laptop reports a coarse primary pointer, and
+  // gating on that left the dock still for everyone with a touchscreen.
+  if (!REDUCED) {
+    panel.addEventListener('pointermove', (e) => { if (e.pointerType === 'touch') return; mouseX = e.clientX; wake(); });
     panel.addEventListener('pointerleave', () => { mouseX = Infinity; wake(); });
+    panel.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'touch') return; mouseX = e.clientX; wake(); setTimeout(() => { mouseX = Infinity; wake(); }, 700); });
   }
   items.forEach((el) => { el.style.setProperty('--w', BASE + 'px'); });
   panel.style.setProperty('--dock-h', PANEL + 'px');

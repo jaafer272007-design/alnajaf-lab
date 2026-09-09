@@ -71,6 +71,8 @@ node ../../../.claude/skills/scroll-craft/scripts/serve.mjs --root . --port 4700
 bash render/verify-all.sh                 # functional test, three harness passes, awkward sizes
 node render/functional.mjs                # controls, language, booking, fallbacks
 node render/look.mjs --w 2000 --h 470     # screenshots at any size; --lang ar, --reduced
+node render/dock-look.mjs                 # the dock under a moving pointer: frames + item widths
+node render/host-check.mjs                # the built artifact inside the host skeleton; --w 390 --h 844 --lang ar
 ```
 
 Run them on Google Chrome (the scripts do), not on Playwright's Chromium.
@@ -78,11 +80,12 @@ Run them on Google Chrome (the scripts do), not on Playwright's Chromium.
 ## Publishing
 
 ```bash
-node render/build-artifact.mjs            # -> render/artifact.html, one file, ~90 KB
+node render/build-artifact.mjs --preview  # -> render/artifact.html, one file, ~9.5 MB with the preview clips
 ```
 
-The artifact loads GSAP and three.js from cdnjs and the type from Google Fonts;
-everything else is inlined. The folder itself is also a static site: copy
+The artifact loads GSAP from cdnjs and the type from Google Fonts; everything
+else is inlined, the three films included (the `--preview` encodes, so the file
+stays under the artifact size limit). The folder itself is also a static site: copy
 everything except `lab/` and `render/` to any host.
 
 ## What still needs the owner

@@ -752,3 +752,32 @@ Authored:
   bouncier spring and a squared falloff, so the collapse-and-grow reads.
 - ScrollSmoother's lag is longer (1.4 s), the fixed chrome lost its backdrop
   blur, and the scrubs are eased a touch more.
+
+---
+
+## Fifth pass: the first frame, and the dock under the pointer
+
+Owner, verbatim: "the first scene or the first background in the page (hero
+section) it almost visible ... the first thing that the person see when
+entering the page is the most important", and "you did not fix the
+navigation bar problem, i want it to be more fluid and smooth and not all of
+the icons at the same size, the icon that the person point on ... must be
+bigger just like the photo".
+
+Authored:
+
+- The opening plate no longer washes the whole frame. On desktop it covers
+  only the title side (62% of the width, mirrored for Arabic); the other
+  side shows the aisle film at full strength from the first frame. The title
+  sets in four short lines so it stays inside that column, with the last two
+  in the signal red. The lede and the two buttons sit under the title, and
+  the scroll cue stands alone at the far corner on a small pill so it reads
+  over the film.
+- On the phone the film owns the top of the screen: the plate starts a third
+  of the way down, the copy sits low, the eyebrow becomes a chip, and the
+  two buttons share one row.
+- The dock had been gated on a fine pointer, which is why it never moved on a
+  touch-capable laptop. It now follows any mouse or pen. The hovered item
+  grows from 40 to 84 px, its neighbours to 54, the rest stay at 40, so the
+  sizes step like the reference photo rather than all growing together.
+

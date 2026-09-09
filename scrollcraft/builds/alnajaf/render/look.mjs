@@ -19,7 +19,7 @@ page.on('pageerror', (e) => errors.push('pageerror: ' + e));
 page.on('requestfailed', (r) => errors.push('failed: ' + r.url()));
 await page.addInitScript((l) => { try { localStorage.setItem('najaf-lang', l); } catch {} }, LANG);
 await page.goto(URL, { waitUntil: 'domcontentloaded' });
-await page.waitForSelector('html.sc-ready', { timeout: 15000 });
+await page.waitForSelector('html.sc-ready', { timeout: 90000 });
 await page.evaluate(() => document.fonts.ready);
 await page.waitForTimeout(900);
 const info = await page.evaluate(() => ({ h: document.body.scrollHeight, vh: innerHeight }));
