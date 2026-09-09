@@ -89,8 +89,8 @@ const world = { chapter: 'top', p: 0, night: 0, set(ch, p) { this.chapter = ch; 
 // the playhead follows the chapter's progress, eased a little so a fast wheel does not stutter.
 // Encoded with a dense keyframe interval, so a seek lands within a frame or two.
 // =============================================================================
-const film = (() => {
-  const host = $('#labFilm'), video = host && host.querySelector('video');
+const makeFilm = (hostSel) => {
+  const host = $(hostSel), video = host && host.querySelector('video');
   let ready = false, target = 0, current = 0, raf = 0, armed = false;
   const src = () => (PHONE.matches && video.dataset.srcMobile) || video.dataset.src;
   // Fetched whole and handed to the element as a blob: a scrubbed clip is seeked all over, and
@@ -118,15 +118,23 @@ const film = (() => {
   }
   return {
     arm(sel) {
-      if (!video || armed) return; armed = true;
+      if (!video) return;
       // Fetch when the chapter is a viewport away; a reader who never scrolls never pays for it.
-      ScrollTrigger.create({ trigger: sel, start: 'top 200%', once: true, onEnter: load });
-      addEventListener('resize', () => { if (loadedFor && loadedFor !== src()) load(); });
+      // Created inside the score's context, so it is reverted with the score and re-armed on
+      // every rebuild (a language switch, fonts settling). It retires itself once it has fired.
+      if (!loadedFor) {
+        const fire = (self) => { load(); self.kill(); };
+        ScrollTrigger.create({ trigger: sel, start: 'top 200%', end: 'bottom top', onEnter: fire, onEnterBack: fire });
+      }
+      if (!armed) { armed = true; addEventListener('resize', () => { if (loadedFor && loadedFor !== src()) load(); }); }
     },
-    seek(p) { target = clamp01(p); if (ready && !raf) raf = requestAnimationFrame(step); },
+    seek(p) { target = clamp01(p); if (!loadedFor) load(); if (ready && !raf) raf = requestAnimationFrame(step); },
     get ready() { return ready; },
   };
-})();
+};
+const film = makeFilm('#labFilm');
+const dropFilm = makeFilm('#peopleFilm');
+window.__films = { lab: film, drop: dropFilm };
 
 // =============================================================================
 // The score. One gsap.context, rebuilt whole on a language switch because line
@@ -249,6 +257,8 @@ function buildScroll() {
     {
       const lines = splitLines($('#people'));
       ScrollTrigger.create({ trigger: '#people', start: 'top 65%', end: 'bottom 35%', onUpdate: (s) => world.set('people', s.progress), onToggle: (s) => s.isActive && world.set('people', s.progress) });
+      dropFilm.arm('#people');
+      ScrollTrigger.create({ trigger: '#peopleFilm', start: 'top bottom', end: 'bottom top', onUpdate: (s) => dropFilm.seek(s.progress), onToggle: (s) => s.isActive && dropFilm.seek(s.progress) });
       if (!INSTANT) {
         gsap.from(lines, { yPercent: 110, stagger: 0.08, duration: 0.8, scrollTrigger: { trigger: '#people', start: 'top 75%', once: true } });
         ScrollTrigger.batch('#people .inst__row, #people .person', { start: 'top 88%', once: true, onEnter: (els) => gsap.from(els, { opacity: 0, y: 22, stagger: 0.06, duration: 0.7, overwrite: true }) });
@@ -563,7 +573,7 @@ function createWorld(THREE) {
     lab:    { d: { fx: -0.90, fy: 0.90, s: 0.001, rz: -0.30, rx: 0.06 }, p: { fx: 0.90, fy: 0.90, s: 0.001, rz: -0.36, rx: 0.06 } },
     tests:  { d: { fx: 0.40, fy: 0.34, s: 0.40, rz: 0.95, rx: 0.30 }, p: { fx: 0.44, fy: 0.42, s: 0.28, rz: 0.95, rx: 0.30 } },
     method: { d: { fx: 0.24, fy: 0.00, s: 0.92, rz: 0.00, rx: 0.00 }, p: { fx: 0.26, fy: 0.12, s: 0.56, rz: 0.00, rx: 0.00 } },
-    people: { d: { fx: 0.40, fy: 0.30, s: 0.66, rz: 0.62, rx: 0.12, dy: 0.9 }, p: { fx: 0.64, fy: 0.30, s: 0.42, rz: 0.62, rx: 0.12, dy: 0.9 } },
+    people: { d: { fx: 0.44, fy: -0.55, s: 0.60, rz: 0.62, rx: 0.12, dy: 0.5 }, p: { fx: 0.66, fy: -0.55, s: 0.40, rz: 0.62, rx: 0.12, dy: 0.5 } },
     visit:  { d: { fx: 0.36, fy: 0.20, s: 0.58, rz: 0.55, rx: 0.10, dy: 0.5 }, p: { fx: 0.66, fy: -0.40, s: 0.36, rz: 0.60, rx: 0.10, dy: 0.3 } },
   };
   const cur = { x: 0, y: 0, s: 0.8, rz: 0.3, rx: 0.1, open: 0, lit: 0, night: 0, ry: 0 };

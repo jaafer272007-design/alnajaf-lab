@@ -712,3 +712,12 @@ Authored, from those two instructions:
   10 s, 1080p, silent: 90 credits a take) once a plan is active; until then
   the slot holds a free placeholder push over the still, so the layer is
   built and verified before a credit is spent.
+
+- **The takes.** Both films were generated on 9 September with Seedance 2.5
+  (reference mode, the owner's still as start frame, 16:9, 1080p, high
+  bitrate, silent), one take each, 135 credits in all. The aisle take is a
+  steady dolly with the foreground racks sliding out and the technician
+  holding still; the drop take lands the droplet with one ripple. Neither
+  needed a retake. The drop lives under chapter 04's opening band. The
+  loader that fetches each clip a viewport ahead is re-armed on every
+  rebuild of the score, after a first version was silently reverted with it.

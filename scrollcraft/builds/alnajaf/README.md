@@ -21,15 +21,20 @@ beads on steel rungs, posed per chapter, opened and lit in the third. It
 costs nothing to generate and covers whatever viewport it is given, because it
 is drawn into the viewport.
 
-Chapter 01 carries the one film on the page: a single continuous shot through
-the laboratory, full-bleed under the copy, scrubbed by the scroll across the
-chapter's whole visible life. `assets/lab.mp4` (desktop) and `assets/lab-m.mp4`
-(phone, portrait crop) are dense-keyframe encodes made with the skill's
-`encode.sh`; the posters beside them are their first frames. The clip is fetched
-only when the chapter is a viewport away, as a blob, and never under reduced
-motion. **The clips currently in `assets/` are placeholders**: a camera push
-over the owner's still (`source/aisle.png`) rendered by `tools/stillmotion.mjs`.
-They are replaced by the Seedance take once it exists; nothing else changes.
+Two films, both generated with Seedance 2.5 through the owner's Higgsfield
+account from stills the owner made (`source/`), one take each:
+
+- Chapter 01: a single continuous dolly down the laboratory aisle, 10 s,
+  full-bleed under the copy, scrubbed by the scroll across the chapter's whole
+  visible life. `assets/lab.mp4` and `assets/lab-m.mp4` (phone, portrait crop).
+- Chapter 04: one drop leaving a pipette, 5 s, under the chapter's opening
+  band. `assets/drop.mp4` and `assets/drop-m.mp4`.
+
+`render/film.sh <master> <name>` turns a master into the four assets: the
+dense-keyframe desktop encode, the portrait phone encode, and a poster from
+each, so the hand-off from poster to clip is seamless. Clips are fetched a
+viewport ahead, as blobs, and never under reduced motion. The masters are not
+tracked (`*.mp4` outside `assets/` is ignored).
 
 ## How it moves
 

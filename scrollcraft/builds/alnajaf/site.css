@@ -355,7 +355,17 @@ html[lang="ar"] .step__t { text-transform: none; }
 html[lang="ar"] .method__peak { text-transform: none; }
 
 /* 04 people */
-.chapter--people { padding-top: clamp(5rem, 14vh, 9rem); padding-bottom: clamp(4rem, 10vh, 7rem); }
+.chapter--people { position: relative; isolation: isolate; padding-top: clamp(5rem, 14vh, 9rem); padding-bottom: clamp(4rem, 10vh, 7rem); }
+.film--band { bottom: auto; height: min(78svh, 46rem); }
+.people__head { min-height: calc(min(78svh, 46rem) - clamp(5rem, 14vh, 9rem)); align-content: start; }
+.film--band .film__plate--head { width: 76%; height: 100%; background: radial-gradient(ellipse at 14% 30%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.95) 46%, rgba(243, 244, 242, 0) 76%); }
+html[dir="rtl"] .film--band .film__plate--head { background: radial-gradient(ellipse at 86% 30%, rgba(243, 244, 242, 0.98) 0%, rgba(243, 244, 242, 0.95) 46%, rgba(243, 244, 242, 0) 76%); }
+.film--band::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 28%; background: linear-gradient(180deg, rgba(243, 244, 242, 0) 0%, var(--g) 100%); }
+@media (max-width: 860px) {
+  .film--band { height: min(64svh, 34rem); }
+  .people__head { min-height: calc(min(64svh, 34rem) - clamp(5rem, 14vh, 9rem)); }
+  .film--band .film__plate--head { width: 100%; height: 100%; background: linear-gradient(180deg, rgba(243, 244, 242, 0.97) 0%, rgba(243, 244, 242, 0.9) 50%, rgba(243, 244, 242, 0.2) 100%); }
+}
 .chapter--people .chapter__head .display { max-width: 22ch; }
 .people__grid { display: grid; grid-template-columns: 5fr 7fr; gap: 3rem clamp(2rem, 6vw, 6rem); margin-top: clamp(2.5rem, 6vh, 4rem); }
 .people__col { display: grid; gap: 1rem; align-content: start; }
